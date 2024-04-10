@@ -1,0 +1,22 @@
+/* 整体调整 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* 去除无序列表的样式 */
+li {
+  list-style: none;
+}
+
+/* 背景图 */
+body {
+  line-height: 1.15;
+  /* overflow: hidden; */
+}
+
+/* 去除Y轴滚动条 */
+::-webkit-scrollbar {
+  width: 0px;
+}
