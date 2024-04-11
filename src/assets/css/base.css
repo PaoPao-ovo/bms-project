@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;800&display=swap');
 /* 整体调整 */
 * {
   margin: 0;
@@ -12,7 +13,8 @@ li {
 
 /* 背景图 */
 body {
-  line-height: 1.15;
+  /* line-height: 1.15; */
+  font-family: 'Poppins', sans-serif;
   /* overflow: hidden; */
 }
 

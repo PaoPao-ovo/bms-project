@@ -51,8 +51,8 @@ const options = {
   yAxis: {
     type: 'value',
     name: '电压(V)',
-    min: -10,
-    max: 60,
+    min: 9,
+    max: 16,
     splitLine: {
       lineStyle: {
         color: '#012f4a'
@@ -93,7 +93,7 @@ const UpdateChart = () => {
       const option = {
         series: [
           {
-            data: clusterStore.clusterSpVoltage
+            data: clusterStore.clusterSpVoltage.map((item) => item / 1000)
           }
         ]
       }
@@ -109,16 +109,21 @@ const UpdateChart = () => {
         const option = {
           series: [
             {
-              data: temparr
+              data: temparr.map((item) => item / 1000)
             }
           ]
         }
         Chart.setOption(option)
       })
+      const temparr = []
+      const series = clusterStore.packVoltageChart.getOption().series
+      for (let i = 0; i < series.length; i++) {
+        temparr.push(series[i].data[49])
+      }
       const option = {
         series: [
           {
-            data: []
+            data: temparr
           }
         ]
       }
@@ -130,7 +135,7 @@ const UpdateChart = () => {
 // 电压更新定时器初始化
 const VoltageTimer = setInterval(() => {
   UpdateChart()
-}, 1000)
+}, 60000)
 
 const TimerId = ref(VoltageTimer)
 
@@ -147,7 +152,7 @@ const ModeChange = (newVal) => {
     if (TimerId.value === null) {
       TimerId.value = setInterval(() => {
         UpdateChart()
-      }, 1000)
+      }, 60000)
     }
   }
 }

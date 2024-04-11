@@ -75,7 +75,7 @@ const FormartHistoryVoltage = (VoltageList) => {
       Series.push({
         name: `${i + 1}号电压`,
         type: 'line',
-        data: VoltageList[i]
+        data: VoltageList[i].map((item) => item / 1000)
       })
     }
   }

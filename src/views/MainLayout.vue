@@ -1,4 +1,6 @@
 <script setup>
+import '@/assets/css/main.css'
+// import '@/assets/js/flexible.js'
 import TemperatureSp from '@/components/temperature/TemperatureSp.vue'
 import HeatMap from '@/components/temperature/HeatMap.vue'
 import TemperatureInfo from '@/components/temperature/TemperatureInfo.vue'
@@ -70,12 +72,11 @@ setInterval(async () => {
   try {
     TitleDataRef.value.Temperature = packtempStore.TemperatureTable[2].value1
     const res = await VolGetService(packtempStore.bmuId)
-    TitleDataRef.value.Voltage = res.data.voltage / 1000 + " V"
+    TitleDataRef.value.Voltage = res.data.voltage / 1000 + ' V'
   } catch (error) {
     TitleDataRef.value.Voltage = null
   }
 }, 1000)
-
 </script>
 
 <template>

@@ -108,7 +108,7 @@ const ChartOptionUpdate = () => {
           {
             name: '电压',
             type: 'line',
-            data: packvoltageStore.packVoltage
+            data: packvoltageStore.packVoltage.map((item) => item / 1000)
           }
         ]
       }
@@ -177,8 +177,15 @@ watch(ModeRef, () => {
     </el-radio-group>
   </div>
   <div class="timeselect">
-    <el-date-picker v-model="DateRef" @change="DateUpdate" class="timeselect" style="width: 1.5rem; height: 0.3rem"
-      type="date" :disabled-date="DisabledDate" placeholder="选择日期" />
+    <el-date-picker
+      v-model="DateRef"
+      @change="DateUpdate"
+      class="timeselect"
+      style="width: 1.5rem; height: 0.3rem"
+      type="date"
+      :disabled-date="DisabledDate"
+      placeholder="选择日期"
+    />
   </div>
   <h2>电压变化曲线</h2>
   <div class="chart" id="VoltagesCompare"></div>

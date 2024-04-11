@@ -1,5 +1,3 @@
-import '@/assets/css/main.css'
-import '@/assets/js/flexible.js'
 import { createApp } from 'vue'
 import ElementPlus from 'element-plus'
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
