@@ -81,11 +81,71 @@ const FormartHistoryVoltage = (VoltageList) => {
   }
   return Series
 }
+
+// 报警参数数组
+const WarmData = [{
+  type: null,
+  third: '三级报警',
+  second: '二级报警',
+  first: '一级报警'
+}, {
+  type: '温度上限（℃）',
+  third: '1',
+  second: '1',
+  first: '1'
+}, {
+  type: '解除',
+  third: '1',
+  second: '1',
+  first: '1'
+}, {
+  type: '温度下限',
+  third: '1',
+  second: '1',
+  first: '1'
+}, {
+  type: '解除',
+  third: '1',
+  second: '1',
+  first: '1'
+}, {
+  type: '温差大',
+  third: '1',
+  second: '1',
+  first: '1'
+}, {
+  type: '解除',
+  third: '1',
+  second: '1',
+  first: '1'
+}, {
+  type: '电压上限（mV）',
+  third: '1',
+  second: '1',
+  first: '1'
+}, {
+  type: '解除',
+  third: '1',
+  second: '1',
+  first: '1'
+}, {
+  type: '电压下限',
+  third: '1',
+  second: '1',
+  first: '1'
+}, {
+  type: '解除',
+  third: '1',
+  second: '1',
+  first: '1'
+}]
+
 export {
   PackOptions,
   ClusterOptions,
   xAxisData,
   HeatMapTemperatureList,
+  WarmData,
   FormartHistoryTemperature,
   FormartHistoryVoltage
 }

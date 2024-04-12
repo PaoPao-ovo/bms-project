@@ -1,6 +1,5 @@
 <script setup>
 import '@/assets/css/main.css'
-// import '@/assets/js/flexible.js'
 import TemperatureSp from '@/components/temperature/TemperatureSp.vue'
 import HeatMap from '@/components/temperature/HeatMap.vue'
 import TemperatureInfo from '@/components/temperature/TemperatureInfo.vue'
@@ -12,6 +11,12 @@ import { usePackTemperatureStore } from '@/stores/modules/packtemperature'
 import { VolGetService } from '@/api/bmu'
 import { ref, watch, computed } from 'vue'
 import { PackOptions, ClusterOptions } from '@/utils/defaultdata'
+
+const LoadJs = async () => {
+  await import('@/assets/js/flexible.js')
+}
+
+LoadJs()
 
 // 电池包pinia
 const packtempStore = usePackTemperatureStore()
@@ -85,12 +90,22 @@ setInterval(async () => {
     <header>
       <div class="header-select">
         <el-select v-model="SelectRef.ClusterId" placeholder="选择电池簇" @change="ClusteridChange">
-          <el-option v-for="item in ClusterOptions" :key="item.value" :label="item.label" :value="item.value" />
+          <el-option
+            v-for="item in ClusterOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
         </el-select>
       </div>
       <div class="body-select">
         <el-select v-model="SelectRef.PackId" placeholder="选择电池" @change="PackidChange">
-          <el-option v-for="item in PackOptions" :key="item.value" :label="item.label" :value="item.value" />
+          <el-option
+            v-for="item in PackOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
         </el-select>
       </div>
       <h1>{{ TitleContent }}</h1>

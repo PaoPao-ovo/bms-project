@@ -2,133 +2,133 @@
 import { ref, onBeforeMount, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import '@/assets/css/fontawesome-all.min.css'
-import '@/assets/css/echarts.css'
-const loginLoading = ref(false);
-const signUploading = ref(false);
+import('@/assets/css/echarts.css')
+const loginLoading = ref(false)
+const signUploading = ref(false)
 
-const loginRef = ref(null);
-const signUpRef = ref(null);
+const loginRef = ref(null)
+const signUpRef = ref(null)
 
 const loginForm = ref({
-  name: "",
-  password: "",
-});
+  name: '',
+  password: ''
+})
 
 const signUpForm = ref({
-  name: "",
-  phone: "",
-  password: "",
-  confirmPassword: "",
-});
+  name: '',
+  phone: '',
+  password: '',
+  confirmPassword: ''
+})
 
 const loginRules = {
   name: [
     {
       required: true,
-      message: "请输入账号/手机号",
-      type: "string",
-      trigger: "blur",
-    },
+      message: '请输入账号/手机号',
+      type: 'string',
+      trigger: 'blur'
+    }
   ],
   password: [
     {
       required: true,
-      message: "请输入密码",
-      type: "string",
-      trigger: "blur",
-    },
-  ],
-};
+      message: '请输入密码',
+      type: 'string',
+      trigger: 'blur'
+    }
+  ]
+}
 
 const signUpRules = {
   name: [
     {
       required: true,
-      message: "请输入账号",
-      type: "string",
-      trigger: "blur",
-    },
+      message: '请输入账号',
+      type: 'string',
+      trigger: 'blur'
+    }
   ],
   phone: [
     {
       required: true,
       pattern: /^1[3-9]\d{9}$/,
-      message: "请输入11位手机号",
-      type: "string",
-      trigger: "blur",
-    },
+      message: '请输入11位手机号',
+      type: 'string',
+      trigger: 'blur'
+    }
   ],
   password: [
     {
       required: true,
-      message: "请输入密码",
-      type: "string",
-      trigger: "blur",
-    },
+      message: '请输入密码',
+      type: 'string',
+      trigger: 'blur'
+    }
   ],
   confirmPassword: [
     {
       validator: (rule, value, callback) => {
-        if (value === "") {
-          callback(new Error("请再次输入密码"));
+        if (value === '') {
+          callback(new Error('请再次输入密码'))
         } else if (value !== signUpForm.value.password) {
-          callback(new Error("两次输入密码不一致!"));
+          callback(new Error('两次输入密码不一致!'))
         } else {
-          callback();
+          callback()
         }
       },
-      type: "string",
-      trigger: "blur",
-    },
-  ],
-};
+      type: 'string',
+      trigger: 'blur'
+    }
+  ]
+}
 
 onBeforeMount(() => {
-  loginLoading.value = false;
-  signUploading.value = false;
-});
+  loginLoading.value = false
+  signUploading.value = false
+})
 
 onMounted(() => {
-  const sign_in_btn = document.querySelector("#sign-in-btn");
-  const sign_up_btn = document.querySelector("#sign-up-btn");
-  const container = document.querySelector(".container")
+  const sign_in_btn = document.querySelector('#sign-in-btn')
+  const sign_up_btn = document.querySelector('#sign-up-btn')
+  const container = document.querySelector('.container')
 
-  sign_in_btn.addEventListener("click", () => {
-    container.classList.remove("sign-up-mode");
-  });
+  sign_in_btn.addEventListener('click', () => {
+    container.classList.remove('sign-up-mode')
+  })
 
-  sign_up_btn.addEventListener("click", () => {
-    container.classList.add("sign-up-mode");
-  });
-});
+  sign_up_btn.addEventListener('click', () => {
+    container.classList.add('sign-up-mode')
+  })
+})
 
 const Login = () => {
   loginRef.value.validate((valid) => {
     if (valid) {
-      loginLoading.value = true;
+      loginLoading.value = true
       // TODO: axios 登录请求
       setTimeout(() => {
-        ElMessage.success("登录成功");
-        loginLoading.value = false;
-      }, 500);
+        ElMessage.success('登录成功')
+        loginLoading.value = false
+      }, 500)
     }
-  });
-};
+  })
+}
 
 const SignUp = () => {
   signUpRef.value.validate((valid) => {
     if (valid) {
-      signUploading.value = true;
+      signUploading.value = true
       // TODO: axios 注册请求
       setTimeout(() => {
-        ElMessage.success("注册成功");
-        signUpRef.value.resetFields();
-        document.getElementById("sign-in-btn").click();
-      }, 500);
+        ElMessage.success('注册成功')
+        signUpRef.value.resetFields()
+        document.getElementById('sign-in-btn').click()
+      }, 500)
     }
-  });
-  signUploading.value = false;
-};
+  })
+  signUploading.value = false
+}
 </script>
 
 <template>
@@ -140,17 +140,33 @@ const SignUp = () => {
           <div class="input-field">
             <i class="fa-solid fa-user"></i>
             <el-form-item prop="name">
-              <el-input v-model="loginForm.name" placeholder="账号/手机号" @keyup.enter="Login(loginForm)" />
+              <el-input
+                v-model="loginForm.name"
+                placeholder="账号/手机号"
+                @keyup.enter="Login(loginForm)"
+              />
             </el-form-item>
           </div>
           <div class="input-field">
             <i class="fa-solid fa-lock"></i>
             <el-form-item prop="password">
-              <el-input v-model="loginForm.password" type="password" placeholder="密码" autocomplete="off" show-password
-                @keyup.enter="Login(loginForm)" />
+              <el-input
+                v-model="loginForm.password"
+                type="password"
+                placeholder="密码"
+                autocomplete="off"
+                show-password
+                @keyup.enter="Login(loginForm)"
+              />
             </el-form-item>
           </div>
-          <el-button type="primary" :loading="loginLoading" @click="Login(loginForm)" class="btn form" round>
+          <el-button
+            type="primary"
+            :loading="loginLoading"
+            @click="Login(loginForm)"
+            class="btn form"
+            round
+          >
             {{ loginLoading ? '登 录 中' : '登 录' }}
           </el-button>
         </el-form>
@@ -171,18 +187,34 @@ const SignUp = () => {
           <div class="input-field">
             <i class="fa-solid fa-lock"></i>
             <el-form-item prop="password">
-              <el-input v-model="signUpForm.password" type="password" placeholder="密码" autocomplete="off"
-                show-password />
+              <el-input
+                v-model="signUpForm.password"
+                type="password"
+                placeholder="密码"
+                autocomplete="off"
+                show-password
+              />
             </el-form-item>
           </div>
           <div class="input-field">
             <i class="fa-solid fa-lock"></i>
             <el-form-item prop="confirmPassword">
-              <el-input v-model="signUpForm.confirmPassword" type="password" placeholder="确认密码" autocomplete="off"
-                show-password />
+              <el-input
+                v-model="signUpForm.confirmPassword"
+                type="password"
+                placeholder="确认密码"
+                autocomplete="off"
+                show-password
+              />
             </el-form-item>
           </div>
-          <el-button type="primary" :loading="signUploading" @click="SignUp(signUpForm)" class="btn form" round>
+          <el-button
+            type="primary"
+            :loading="signUploading"
+            @click="SignUp(signUpForm)"
+            class="btn form"
+            round
+          >
             {{ signUploading ? '注 册 中' : '注 册' }}
           </el-button>
         </el-form>
@@ -211,10 +243,10 @@ const SignUp = () => {
 </template>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;800&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;800&display=swap');
 
 input {
-  font-family: "Poppins", sans-serif;
+  font-family: 'Poppins', sans-serif;
 }
 
 .container {
@@ -383,7 +415,7 @@ form.sign-in-form {
 }
 
 .container:before {
-  content: "";
+  content: '';
   position: absolute;
   height: 2000px;
   width: 2000px;

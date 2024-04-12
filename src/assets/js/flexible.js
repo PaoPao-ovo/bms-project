@@ -1,4 +1,4 @@
-; (function flexible(window, document) {
+;(function flexible(window, document) {
   var docEl = document.documentElement
   var dpr = window.devicePixelRatio || 1
 
@@ -6,7 +6,9 @@
   function setBodyFontSize() {
     if (document.body) {
       document.body.style.fontSize = 12 * dpr + 'px'
+      // console.log(document.body.style.fontSize);
     } else {
+      // console.log(document.body.style.fontSize);
       document.addEventListener('DOMContentLoaded', setBodyFontSize)
     }
   }
@@ -41,4 +43,3 @@
     docEl.removeChild(fakeBody)
   }
 })(window, document)
-
