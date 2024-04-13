@@ -1,18 +1,18 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import MainLayout from '@/views/MainLayout.vue'
-import LoginView from '@/views/LoginView.vue'
+// import MainLayout from '@/views/MainLayout.vue'
+// import LoginView from '@/views/LoginView.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/bmu',
       name: 'LayoutMain',
-      component: MainLayout
+      component: import('@/views/MainLayout.vue'),
     },
     {
       path: '/',
       name: 'LoginMain',
-      component: LoginView
+      component: import('@/views/LoginView.vue'),
     }
   ]
 })

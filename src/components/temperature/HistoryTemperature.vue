@@ -92,9 +92,9 @@ const UpdateDate = (selDate) => {
 
 // 定时更新当天的数据（返回当前的定时器ID）
 const TemperatureUpdateTimer = setInterval(
-  (date) => {
+  async (date) => {
     if (date === TodayDateFormate()) {
-      packtempStore.setTemperatureLineData(date)
+      await packtempStore.setTemperatureLineData(date)
       const options = {
         series: FormartHistoryTemperature(packtempStore.TemperatureLineData),
         xAxis: {
@@ -106,7 +106,7 @@ const TemperatureUpdateTimer = setInterval(
       }
     }
   },
-  600000,
+  1000,
   SelectDate.value
 )
 
@@ -114,12 +114,12 @@ const TemperatureUpdateTimer = setInterval(
 const TimerID = ref(TemperatureUpdateTimer)
 
 // 监听日期变化（更新数据）
-watch(SelectDate, (newVal) => {
+watch(SelectDate, async (newVal) => {
   const SelTime = SelectDateFormate(newVal)
   if (SelTime === TodayDateFormate()) {
     if (TimerID.value === null) {
-      TimerID.value = setInterval(() => {
-        packtempStore.setTemperatureLineData(SelTime)
+      TimerID.value = setInterval(async () => {
+        await packtempStore.setTemperatureLineData(SelTime)
         const options = {
           series: FormartHistoryTemperature(packtempStore.TemperatureLineData),
           xAxis: {
@@ -134,7 +134,7 @@ watch(SelectDate, (newVal) => {
   } else {
     clearInterval(TimerID.value)
     TimerID.value = null
-    packtempStore.setTemperatureLineData(SelTime)
+    await packtempStore.setTemperatureLineData(SelTime)
     const options = {
       series: FormartHistoryTemperature(packtempStore.TemperatureLineData),
       xAxis: {

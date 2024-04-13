@@ -83,63 +83,96 @@ const FormartHistoryVoltage = (VoltageList) => {
 }
 
 // 报警参数数组
-const WarmData = [{
-  type: null,
-  third: '三级报警',
-  second: '二级报警',
-  first: '一级报警'
-}, {
-  type: '温度上限（℃）',
-  third: '1',
-  second: '1',
-  first: '1'
-}, {
-  type: '解除',
-  third: '1',
-  second: '1',
-  first: '1'
-}, {
-  type: '温度下限',
-  third: '1',
-  second: '1',
-  first: '1'
-}, {
-  type: '解除',
-  third: '1',
-  second: '1',
-  first: '1'
-}, {
-  type: '温差大',
-  third: '1',
-  second: '1',
-  first: '1'
-}, {
-  type: '解除',
-  third: '1',
-  second: '1',
-  first: '1'
-}, {
-  type: '电压上限（mV）',
-  third: '1',
-  second: '1',
-  first: '1'
-}, {
-  type: '解除',
-  third: '1',
-  second: '1',
-  first: '1'
-}, {
-  type: '电压下限',
-  third: '1',
-  second: '1',
-  first: '1'
-}, {
-  type: '解除',
-  third: '1',
-  second: '1',
-  first: '1'
-}]
+const WarmData = [
+  {
+    type: null,
+    third: '三级报警',
+    second: '二级报警',
+    first: '一级报警'
+  },
+  {
+    type: '温度上限（℃）',
+    third: null,
+    second: null,
+    first: null
+  },
+  {
+    type: '解除',
+    third: null,
+    second: null,
+    first: null
+  },
+  {
+    type: '温度下限',
+    third: null,
+    second: null,
+    first: null
+  },
+  {
+    type: '解除',
+    third: null,
+    second: null,
+    first: null
+  },
+  {
+    type: '温差大',
+    third: null,
+    second: null,
+    first: null
+  },
+  {
+    type: '解除',
+    third: null,
+    second: null,
+    first: null
+  },
+  {
+    type: '电压上限（mV）',
+    third: null,
+    second: null,
+    first: null
+  },
+  {
+    type: '解除',
+    third: null,
+    second: null,
+    first: null
+  },
+  {
+    type: '电压下限',
+    third: null,
+    second: null,
+    first: null
+  },
+  {
+    type: '解除',
+    third: null,
+    second: null,
+    first: null
+  }
+]
 
+const alarmDataFormat = (data) => {
+  const temparr = []
+  let index = 0
+  for (let i = 1; i < data.length; i++) {
+    temparr[index] = +data[i].third
+    temparr[index + 1] = +data[i].second
+    temparr[index + 2] = +data[i].first
+    index = index + 3
+  }
+  return temparr
+}
+
+const alarmResFormat = (paramarr, data) => {
+  let index = 0
+  for (let i = 0; i < paramarr.length - 1; i++) {
+    paramarr[i + 1].third = +data[index]
+    paramarr[i + 1].second = +data[index + 1]
+    paramarr[i + 1].first = +data[index + 2]
+    index = index + 3
+  }
+}
 export {
   PackOptions,
   ClusterOptions,
@@ -147,5 +180,7 @@ export {
   HeatMapTemperatureList,
   WarmData,
   FormartHistoryTemperature,
-  FormartHistoryVoltage
+  FormartHistoryVoltage,
+  alarmDataFormat,
+  alarmResFormat
 }

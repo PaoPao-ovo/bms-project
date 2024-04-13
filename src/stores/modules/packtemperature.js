@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { TempGetService, GetHistoryTempService } from '@/api/bmu'
 import { HeatMapTemperatureList } from '@/utils/defaultdata'
-
+import { TodayDateFormate } from '@/utils/daytime'
 // 电池包温度模块数据
 export const usePackTemperatureStore = defineStore('packtemperature', () => {
   // 电池包的ID
@@ -112,6 +112,8 @@ export const usePackTemperatureStore = defineStore('packtemperature', () => {
     }
   }
 
+  setTemperatureData()
+  setTemperatureLineData(TodayDateFormate())
   return {
     bmuId,
     TemperatureSpData,

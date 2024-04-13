@@ -85,11 +85,11 @@ onMounted(() => {
   })
 })
 
-const UpdateChart = () => {
+const UpdateChart = async () => {
   if (Chart !== null) {
     if (+clusterStore.clusterMode !== 5) {
       clusterStore.packVoltageChart.off('click')
-      clusterStore.setClusterSp() // 获取数据
+      await clusterStore.setClusterSp() // 获取数据
       const option = {
         series: [
           {
@@ -109,7 +109,7 @@ const UpdateChart = () => {
         const option = {
           series: [
             {
-              data: temparr.map((item) => item / 1000)
+              data: temparr
             }
           ]
         }
@@ -135,7 +135,7 @@ const UpdateChart = () => {
 // 电压更新定时器初始化
 const VoltageTimer = setInterval(() => {
   UpdateChart()
-}, 60000)
+}, 1000)
 
 const TimerId = ref(VoltageTimer)
 
@@ -152,7 +152,7 @@ const ModeChange = (newVal) => {
     if (TimerId.value === null) {
       TimerId.value = setInterval(() => {
         UpdateChart()
-      }, 60000)
+      }, 1000)
     }
   }
 }

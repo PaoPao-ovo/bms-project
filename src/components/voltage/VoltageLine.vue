@@ -94,9 +94,9 @@ const ChangeMode = (val) => {
 }
 
 // 更新图表属性
-const ChartOptionUpdate = () => {
+const ChartOptionUpdate = async () => {
   if (ModeRef.value === '5') {
-    packvoltageStore.setPackVoltage(SelectDateFormate(DateRef.value))
+    await packvoltageStore.setPackVoltage(SelectDateFormate(DateRef.value))
     if (packvoltageStore.packVoltageChart !== null) {
       const options = {
         xAxis: [
@@ -117,7 +117,7 @@ const ChartOptionUpdate = () => {
       })
     }
   } else {
-    packvoltageStore.setClusterVoltage(+ModeRef.value, SelectDateFormate(DateRef.value))
+    await packvoltageStore.setClusterVoltage(+ModeRef.value, SelectDateFormate(DateRef.value))
     if (packvoltageStore.packVoltageChart !== null) {
       const options = {
         xAxis: [
@@ -127,7 +127,9 @@ const ChartOptionUpdate = () => {
         ],
         series: FormartHistoryVoltage(packvoltageStore.clusterVoltage)
       }
-      packvoltageStore.packVoltageChart.setOption(options)
+      packvoltageStore.packVoltageChart.setOption(options, {
+        replaceMerge: ['series']
+      })
     }
   }
 }

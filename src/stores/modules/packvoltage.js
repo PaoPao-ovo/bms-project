@@ -4,10 +4,14 @@ import {
   GetHistoryVolService,
   GetClusterHistoryVolService,
   AlarmGetService,
-  GetClusterVolService
+  GetClusterVolService,
+  SetAlarmParamService,
+  GetAlarmParamService
 } from '@/api/bmu.js'
-
+import { ElMessage } from 'element-plus'
 import { ref, shallowRef } from 'vue'
+
+import { WarmData, alarmDataFormat, alarmResFormat } from '@/utils/defaultdata.js'
 
 // 电池包电压模块数据
 export const usePackVoltageStore = defineStore('packvoltage', () => {
@@ -85,6 +89,36 @@ export const usePackVoltageStore = defineStore('packvoltage', () => {
   // 电压曲线实例
   const packVoltageChart = shallowRef(null)
 
+  // 报警参数
+  const alarmParams = ref(WarmData)
+
+  // 获取报警参数
+  const getAlarmParams = async () => {
+    try {
+      const res = await GetAlarmParamService(bmuId.value)
+      alarmResFormat(alarmParams.value, res.data.alarm_para)
+    } catch (error) {
+      alarmParams.value = WarmData
+    }
+  }
+
+  // 设置&重置（报警参数）
+  const setAlarmParams = async (params) => {
+    try {
+      await SetAlarmParamService(alarmDataFormat(params))
+      alarmParams.value = params
+      ElMessage.success('报警参数设置成功')
+    } catch (error) {
+      ElMessage.error('报警参数设置失败')
+    }
+  }
+  // 数据初始化
+  setClusterSp()
+  setPackVoltage()
+  setPackWarnList()
+  setClusterVoltage()
+  getAlarmParams()
+
   return {
     bmuId,
     clusterMode,
@@ -95,9 +129,12 @@ export const usePackVoltageStore = defineStore('packvoltage', () => {
     clusterSpVoltage,
     packWarnList,
     packVoltageChart,
+    alarmParams,
     setPackVoltage,
     setClusterVoltage,
     setPackWarnList,
-    setClusterSp
+    setClusterSp,
+    setAlarmParams,
+    getAlarmParams
   }
 })
