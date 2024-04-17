@@ -142,17 +142,33 @@ const SignUp = () => {
           <div class="input-field">
             <i class="fa-solid fa-user"></i>
             <el-form-item prop="name">
-              <el-input v-model="loginForm.name" placeholder="账号/手机号" @keyup.enter="Login(loginForm)" />
+              <el-input
+                v-model="loginForm.name"
+                placeholder="账号/手机号"
+                @keyup.enter="Login(loginForm)"
+              />
             </el-form-item>
           </div>
           <div class="input-field">
             <i class="fa-solid fa-lock"></i>
             <el-form-item prop="password">
-              <el-input v-model="loginForm.password" type="password" placeholder="密码" autocomplete="off" show-password
-                @keyup.enter="Login(loginForm)" />
+              <el-input
+                v-model="loginForm.password"
+                type="password"
+                placeholder="密码"
+                autocomplete="off"
+                show-password
+                @keyup.enter="Login(loginForm)"
+              />
             </el-form-item>
           </div>
-          <el-button type="primary" :loading="loginLoading" @click="Login(loginForm)" class="btn form" round>
+          <el-button
+            type="primary"
+            :loading="loginLoading"
+            @click="Login(loginForm)"
+            class="btn form"
+            round
+          >
             {{ loginLoading ? '登 录 中' : '登 录' }}
           </el-button>
         </el-form>
@@ -173,18 +189,34 @@ const SignUp = () => {
           <div class="input-field">
             <i class="fa-solid fa-lock"></i>
             <el-form-item prop="password">
-              <el-input v-model="signUpForm.password" type="password" placeholder="密码" autocomplete="off"
-                show-password />
+              <el-input
+                v-model="signUpForm.password"
+                type="password"
+                placeholder="密码"
+                autocomplete="off"
+                show-password
+              />
             </el-form-item>
           </div>
           <div class="input-field">
             <i class="fa-solid fa-lock"></i>
             <el-form-item prop="confirmPassword">
-              <el-input v-model="signUpForm.confirmPassword" type="password" placeholder="确认密码" autocomplete="off"
-                show-password />
+              <el-input
+                v-model="signUpForm.confirmPassword"
+                type="password"
+                placeholder="确认密码"
+                autocomplete="off"
+                show-password
+              />
             </el-form-item>
           </div>
-          <el-button type="primary" :loading="signUploading" @click="SignUp(signUpForm)" class="btn form" round>
+          <el-button
+            type="primary"
+            :loading="signUploading"
+            @click="SignUp(signUpForm)"
+            class="btn form"
+            round
+          >
             {{ signUploading ? '注 册 中' : '注 册' }}
           </el-button>
         </el-form>

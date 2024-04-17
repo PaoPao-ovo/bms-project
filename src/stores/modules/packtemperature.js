@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, shallowRef } from 'vue'
 import { TempGetService, GetHistoryTempService } from '@/api/bmu'
 import { HeatMapTemperatureList } from '@/utils/defaultdata'
-import { TodayDateFormate } from '@/utils/daytime'
+
 // 电池包温度模块数据
 export const usePackTemperatureStore = defineStore('packtemperature', () => {
   // 电池包的ID
@@ -13,8 +13,6 @@ export const usePackTemperatureStore = defineStore('packtemperature', () => {
     bmuId.value = (+clusterid - 1) * 50 + +packid
   }
 
-  // 温度散点图数据
-  const TemperatureSpData = ref([])
 
   // 系统温度数据
   const TemperatureTable = ref([
@@ -41,13 +39,10 @@ export const usePackTemperatureStore = defineStore('packtemperature', () => {
   // 热力图温度数据
   const HeatMapList = ref(HeatMapTemperatureList)
 
-  // 温度数据修改和重置
+  // 温度数据修改和重置(系统温度数据)
   const setTemperatureData = async () => {
     try {
       const res = await TempGetService(bmuId.value)
-
-      // 温度散点图温度数据修改
-      TemperatureSpData.value = res.data.temperature
 
       // 热力图温度数据修改
       for (let i = 0; i < HeatMapList.value.length; i++) {
@@ -62,8 +57,6 @@ export const usePackTemperatureStore = defineStore('packtemperature', () => {
       TemperatureTable.value[2].value1 = res.data['average_of_temperature'] + ' °C'
       TemperatureTable.value[2].value2 = res.data['range_of_temperature'] + ' °C'
     } catch (error) {
-      // 温度散点图温度数据重置
-      TemperatureSpData.value = []
 
       // 热力图温度数据重置
       for (let i = 0; i < HeatMapList.value.length; i++) {
@@ -112,15 +105,16 @@ export const usePackTemperatureStore = defineStore('packtemperature', () => {
     }
   }
 
-  setTemperatureData()
-  setTemperatureLineData(TodayDateFormate())
+  // 历史温度曲线图
+  const HistoryTemperatureChart = shallowRef(null)
+
   return {
     bmuId,
-    TemperatureSpData,
     TemperatureTable,
     HeatMapList,
     TemperatureLineData,
     xAxisData,
+    HistoryTemperatureChart,
     setBmuId,
     setTemperatureData,
     setTemperatureLineData

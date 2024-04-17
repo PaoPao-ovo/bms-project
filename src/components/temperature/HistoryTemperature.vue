@@ -4,6 +4,7 @@ import * as echarts from 'echarts'
 import { TodayDateFormate, SelectDateFormate } from '@/utils/daytime'
 import { usePackTemperatureStore } from '@/stores/modules/packtemperature'
 import { FormartHistoryTemperature } from '@/utils/defaultdata'
+
 const packtempStore = usePackTemperatureStore()
 
 // 图表默认属性
@@ -73,11 +74,9 @@ const DisabledDate = (time) => {
   return time.getTime() > Date.now()
 }
 
-let Chart = null
-
 onMounted(() => {
   const TempCompareChart = echarts.init(document.getElementById('TempCompare'))
-  Chart = TempCompareChart
+  packtempStore.HistoryTemperatureChart = TempCompareChart
   TempCompareChart.setOption(options)
   window.addEventListener('resize', function () {
     TempCompareChart.resize()
@@ -101,8 +100,8 @@ const TemperatureUpdateTimer = setInterval(
           data: packtempStore.xAxisData
         }
       }
-      if (Chart !== null) {
-        Chart.setOption(options)
+      if (packtempStore.HistoryTemperatureChart !== null) {
+        packtempStore.HistoryTemperatureChart.setOption(options)
       }
     }
   },
@@ -126,8 +125,8 @@ watch(SelectDate, async (newVal) => {
             data: packtempStore.xAxisData
           }
         }
-        if (Chart !== null) {
-          Chart.setOption(options)
+        if (packtempStore.HistoryTemperatureChart !== null) {
+          packtempStore.HistoryTemperatureChart.setOption(options)
         }
       }, 1000)
     }
@@ -141,7 +140,7 @@ watch(SelectDate, async (newVal) => {
         data: packtempStore.xAxisData
       }
     }
-    Chart.setOption(options)
+    packtempStore.HistoryTemperatureChart.setOption(options)
   }
 })
 </script>

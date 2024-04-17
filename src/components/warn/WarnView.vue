@@ -2,7 +2,7 @@
 import { Vue3SeamlessScroll } from 'vue3-seamless-scroll'
 import { usePackVoltageStore } from '@/stores/modules/packvoltage'
 
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 const packStore = usePackVoltageStore()
 
@@ -14,9 +14,20 @@ setInterval(async () => {
 const activeName = ref('first')
 
 const Login = async (param) => {
-
   await packStore.setAlarmParams(param)
+  Uploading.value = true
+  setTimeout(() => {
+    Uploading.value = false
+  }, 180000 * 5)
 }
+
+const Uploading = ref(false)
+
+watch(activeName, async (newVal) => {
+  if (newVal === 'second') {
+    await packStore.getAlarmParams()
+  }
+})
 </script>
 
 <template>
@@ -24,8 +35,13 @@ const Login = async (param) => {
     <el-tabs v-model="activeName">
       <el-tab-pane label="报警信息" name="first">
         <div class="chart">
-          <vue3-seamless-scroll :list="packStore.packWarnList" class="scroll" :step="0.2" :hover="true"
-            :limitScrollNum="8">
+          <vue3-seamless-scroll
+            :list="packStore.packWarnList"
+            class="scroll"
+            :step="0.2"
+            :hover="true"
+            :limitScrollNum="8"
+          >
             <div class="item" v-for="(item, index) in packStore.packWarnList" :key="index">
               <span v-show="item.level != ''">{{ item.updatetime }}</span>
               <span v-show="item.level != ''">{{ item.level }}</span>
@@ -36,14 +52,20 @@ const Login = async (param) => {
       </el-tab-pane>
       <el-tab-pane label="报警参数设置" name="second">
         <div class="chart">
-          <el-scrollbar><el-form :model="packStore.alarmParams">
-              <el-table class="setchart" :data="packStore.alarmParams" :cell-style="{ 'text-align': 'center' }"
-                :show-header="false" style="
+          <el-scrollbar
+            ><el-form :model="packStore.alarmParams">
+              <el-table
+                class="setchart"
+                :data="packStore.alarmParams"
+                :cell-style="{ 'text-align': 'center' }"
+                :show-header="false"
+                style="
                   --el-table-border-color: none;
                   --el-table-bg-color: none;
                   --el-table-tr-bg-color: none;
                   --el-table-header-bg-color: none;
-                ">
+                "
+              >
                 <el-table-column prop="type" label="">
                   <template #default="scope">
                     <span>{{ scope.row.type }}</span>
@@ -66,12 +88,14 @@ const Login = async (param) => {
                 </el-table-column>
               </el-table>
               <el-row>
-                <el-col :span="2" :offset="21">
-                  <el-button @click="Login(packStore.alarmParams)">提交</el-button>
+                <el-col :span="2" :offset="20">
+                  <el-button :loading="Uploading" @click="Login(packStore.alarmParams)">{{
+                    '提交'
+                  }}</el-button>
                 </el-col>
               </el-row>
-
-            </el-form></el-scrollbar>
+            </el-form></el-scrollbar
+          >
         </div>
       </el-tab-pane>
     </el-tabs>
@@ -98,7 +122,7 @@ const Login = async (param) => {
   color: white;
 }
 
-.chart .setchart tr:hover>td {
+.chart .setchart tr:hover > td {
   background-color: #134d80 !important;
 }
 </style>

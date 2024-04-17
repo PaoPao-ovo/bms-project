@@ -10,7 +10,7 @@ import {
 } from '@/api/bmu.js'
 import { ElMessage } from 'element-plus'
 import { ref, shallowRef } from 'vue'
-
+import { TodayDateFormate } from '@/utils/daytime'
 import { WarmData, alarmDataFormat, alarmResFormat } from '@/utils/defaultdata.js'
 
 // 电池包电压模块数据
@@ -114,9 +114,9 @@ export const usePackVoltageStore = defineStore('packvoltage', () => {
   }
   // 数据初始化
   setClusterSp()
-  setPackVoltage()
+  setPackVoltage(TodayDateFormate())
   setPackWarnList()
-  setClusterVoltage()
+  setClusterVoltage(1, TodayDateFormate())
   getAlarmParams()
 
   return {
