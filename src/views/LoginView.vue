@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onBeforeMount, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-// import router from '@/router/index'
+import router from '@/router/index'
 import '@/assets/css/fontawesome-all.min.css'
 import('@/assets/css/echarts.css')
 const loginLoading = ref(false)
@@ -111,7 +111,7 @@ const Login = () => {
       setTimeout(() => {
         ElMessage.success('登录成功')
         loginLoading.value = false
-        // router.push('/bmu')
+        router.push('/bmu')
       }, 500)
     }
   })

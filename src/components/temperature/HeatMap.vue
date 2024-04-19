@@ -1,15 +1,14 @@
 <script setup>
 import * as echarts from 'echarts'
-import { onMounted, watch } from 'vue'
+import { onMounted, onBeforeUnmount } from 'vue'
 import { usePackTemperatureStore } from '@/stores/modules/packtemperature'
-import { storeToRefs } from 'pinia'
+import { TempGetService } from '@/api/bmu'
+import { UpdateHeatMapChart } from '@/utils/defaultdata'
 
 // 电池包模块
 const packtempStore = usePackTemperatureStore()
 
-let Chart = null
-
-// 热力图配置
+// 热力图基础配置
 const options = {
   color: ['#00f2f1'],
   animation: false,
@@ -86,30 +85,32 @@ const options = {
   ]
 }
 
+// 表格初始化
 onMounted(() => {
   const HeatMap = echarts.init(document.getElementById('HeatMap'))
-  Chart = HeatMap
+  packtempStore.HeatMapChart = HeatMap
   HeatMap.setOption(options)
   window.addEventListener('resize', function () {
     HeatMap.resize()
   })
 })
 
-// 解构热力图温度数据
-const { HeatMapList } = storeToRefs(packtempStore)
-
-watch(
-  HeatMapList,
-  (newValue) => {
-    const option = {
-      series: [{ data: newValue }]
-    }
-    Chart.setOption(option)
-  },
-  {
-    deep: true
+// 定时更新初始化
+packtempStore.HeatMapTimerId = setInterval(async () => {
+  try {
+    const res = await TempGetService(packtempStore.bmuId)
+    const data = res.data.temperature
+    UpdateHeatMapChart(data, packtempStore.HeatMapChart)
+  } catch (error) {
+    const data = []
+    UpdateHeatMapChart(data, packtempStore.HeatMapChart)
   }
-)
+}, 1000)
+
+// 组件销毁时清除定时器
+onBeforeUnmount(() => {
+  clearInterval(packtempStore.HeatMapTimerId)
+})
 </script>
 
 <template>

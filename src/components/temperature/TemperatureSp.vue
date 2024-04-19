@@ -4,6 +4,8 @@ import * as echarts from 'echarts'
 import { onMounted, ref } from 'vue'
 import { TempGetService } from '@/api/bmu'
 import { usePackTemperatureStore } from '@/stores/modules/packtemperature'
+import { storeToRefs } from 'pinia'
+import { UpdateHeatMapChart } from '@/utils/defaultdata'
 
 // 温度数据仓库
 const packTemperatureStore = usePackTemperatureStore()
@@ -88,7 +90,7 @@ onMounted(() => {
   })
 })
 
-// 图表更新函数
+// 图表更新函数(散点图)
 const UpdateChart = (data) => {
   const option = {
     series: [
@@ -116,12 +118,15 @@ const Timer = setInterval(async () => {
 const TimerId = ref(Timer)
 
 // 当前选择的模式（默认为实时状态）
-const temperatureMode = ref('1')
+const { TemperatureChartMode } = storeToRefs(packTemperatureStore)
 
 // 模式切换函数(定时器启停&图表点击事件监听)
 const ModeChange = () => {
-  if (temperatureMode.value === '1') {
+  if (TemperatureChartMode.value === '1') {
+    packTemperatureStore.HistoryTemperatureChart.off('click')
+    // 开启定时器
     clearInterval(TimerId.value)
+    clearInterval(packTemperatureStore.HeatMapTimerId)
     TimerId.value = setInterval(async () => {
       try {
         const res = await TempGetService(packTemperatureStore.bmuId)
@@ -132,8 +137,23 @@ const ModeChange = () => {
         UpdateChart(data)
       }
     }, 1000)
+
+    packTemperatureStore.HeatMapTimerId = setInterval(async () => {
+      try {
+        const res = await TempGetService(packTemperatureStore.bmuId)
+        const data = res.data.temperature
+        UpdateHeatMapChart(data, packTemperatureStore.HeatMapChart)
+      } catch (error) {
+        const data = []
+        UpdateHeatMapChart(data, packTemperatureStore.HeatMapChart)
+      }
+    }, 1000)
   } else {
+    // 取消定时器
     clearInterval(TimerId.value)
+    clearInterval(packTemperatureStore.HeatMapTimerId)
+
+    // 添加点击事件
     packTemperatureStore.HistoryTemperatureChart.on('click', (param) => {
       const temparr = []
       const dataIndex = param.dataIndex
@@ -149,14 +169,31 @@ const ModeChange = () => {
         ]
       }
       Chart.setOption(option)
+      UpdateHeatMapChart(temparr, packTemperatureStore.HeatMapChart)
     })
+
+    // 初始值配置
+    const series = packTemperatureStore.HistoryTemperatureChart.getOption().series
+    let temparr = []
+    for (let i = 0; i < series.length; i++) {
+      temparr.push(series[i].data[series[i].data.length - 1])
+    }
+    const option = {
+      series: [
+        {
+          data: temparr
+        }
+      ]
+    }
+    Chart.setOption(option)
+    UpdateHeatMapChart(temparr, packTemperatureStore.HeatMapChart)
   }
 }
 </script>
 
 <template>
   <div class="selectbox">
-    <el-radio-group v-model="temperatureMode" @change="ModeChange">
+    <el-radio-group v-model="TemperatureChartMode" @change="ModeChange">
       <el-radio value="1">实时</el-radio>
       <el-radio value="2">历史</el-radio>
     </el-radio-group>

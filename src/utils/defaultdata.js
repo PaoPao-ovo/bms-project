@@ -173,6 +173,33 @@ const alarmResFormat = (paramarr, data) => {
     index = index + 3
   }
 }
+
+// 图表更新函数
+const UpdateHeatMapChart = (data, Chart) => {
+  if (data.length !== 0) {
+    for (let i = 0; i < HeatMapTemperatureList.length; i++) {
+      HeatMapTemperatureList[i][2] = data[i]
+    }
+    const option = {
+      series: [
+        {
+          data: HeatMapTemperatureList
+        }
+      ]
+    }
+    Chart.setOption(option)
+  } else {
+    const option = {
+      series: [
+        {
+          data: []
+        }
+      ]
+    }
+    Chart.setOption(option)
+  }
+}
+
 export {
   PackOptions,
   ClusterOptions,
@@ -182,5 +209,6 @@ export {
   FormartHistoryTemperature,
   FormartHistoryVoltage,
   alarmDataFormat,
-  alarmResFormat
+  alarmResFormat,
+  UpdateHeatMapChart
 }

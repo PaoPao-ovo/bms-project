@@ -1,5 +1,6 @@
 <script setup>
 import '@/assets/css/main.css'
+import '@/assets/js/flexible.js'
 import TemperatureSp from '@/components/temperature/TemperatureSp.vue'
 import HeatMap from '@/components/temperature/HeatMap.vue'
 import TemperatureInfo from '@/components/temperature/TemperatureInfo.vue'
@@ -12,11 +13,11 @@ import { VolGetService } from '@/api/bmu'
 import { ref, watch, computed } from 'vue'
 import { PackOptions, ClusterOptions } from '@/utils/defaultdata'
 
-const LoadJs = async () => {
-  await import('@/assets/js/flexible.js')
-}
+// const LoadJs = async () => {
+//   await import('@/assets/js/flexible.js')
+// }
 
-LoadJs()
+// LoadJs()
 
 // 电池包pinia
 const packtempStore = usePackTemperatureStore()

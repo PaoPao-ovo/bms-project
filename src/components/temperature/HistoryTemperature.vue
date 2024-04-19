@@ -17,8 +17,10 @@ const options = {
   ],
   tooltip: {
     trigger: 'axis',
+    triggerOn: 'click',
     axisPointer: {
-      type: 'shadow'
+      type: 'shadow',
+      snap: true
     },
     confine: true,
     enterable: true,

@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, shallowRef } from 'vue'
 import { TempGetService, GetHistoryTempService } from '@/api/bmu'
-import { HeatMapTemperatureList } from '@/utils/defaultdata'
 
 // 电池包温度模块数据
 export const usePackTemperatureStore = defineStore('packtemperature', () => {
@@ -12,7 +11,6 @@ export const usePackTemperatureStore = defineStore('packtemperature', () => {
   const setBmuId = (clusterid, packid) => {
     bmuId.value = (+clusterid - 1) * 50 + +packid
   }
-
 
   // 系统温度数据
   const TemperatureTable = ref([
@@ -36,18 +34,10 @@ export const usePackTemperatureStore = defineStore('packtemperature', () => {
     }
   ])
 
-  // 热力图温度数据
-  const HeatMapList = ref(HeatMapTemperatureList)
-
   // 温度数据修改和重置(系统温度数据)
   const setTemperatureData = async () => {
     try {
       const res = await TempGetService(bmuId.value)
-
-      // 热力图温度数据修改
-      for (let i = 0; i < HeatMapList.value.length; i++) {
-        HeatMapList.value[i][2] = res.data.temperature[i]
-      }
 
       // 系统温度数据修改
       TemperatureTable.value[0].value1 = res.data['max_temperature'] + ' °C'
@@ -57,12 +47,6 @@ export const usePackTemperatureStore = defineStore('packtemperature', () => {
       TemperatureTable.value[2].value1 = res.data['average_of_temperature'] + ' °C'
       TemperatureTable.value[2].value2 = res.data['range_of_temperature'] + ' °C'
     } catch (error) {
-
-      // 热力图温度数据重置
-      for (let i = 0; i < HeatMapList.value.length; i++) {
-        HeatMapList.value[i][2] = null
-      }
-
       // 系统温度数据重置
       TemperatureTable.value = [
         {
@@ -108,13 +92,24 @@ export const usePackTemperatureStore = defineStore('packtemperature', () => {
   // 历史温度曲线图
   const HistoryTemperatureChart = shallowRef(null)
 
+  // 温度散点图选择模式
+  const TemperatureChartMode = ref('1')
+
+  // 热力图定时器
+  const HeatMapTimerId = ref(null)
+
+  // 热力图图表对象
+  const HeatMapChart = shallowRef(null)
+
   return {
     bmuId,
     TemperatureTable,
-    HeatMapList,
     TemperatureLineData,
     xAxisData,
     HistoryTemperatureChart,
+    TemperatureChartMode,
+    HeatMapTimerId,
+    HeatMapChart,
     setBmuId,
     setTemperatureData,
     setTemperatureLineData

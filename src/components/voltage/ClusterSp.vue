@@ -118,7 +118,7 @@ const UpdateChart = async () => {
       const temparr = []
       const series = clusterStore.packVoltageChart.getOption().series
       for (let i = 0; i < series.length; i++) {
-        temparr.push(series[i].data[49])
+        temparr.push(series[i].data[series[i].data.length - 1])
       }
       const option = {
         series: [
