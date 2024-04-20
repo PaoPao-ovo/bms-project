@@ -152,9 +152,8 @@ const ModeChange = () => {
     // 取消定时器
     clearInterval(TimerId.value)
     clearInterval(packTemperatureStore.HeatMapTimerId)
-
     // 添加点击事件
-    packTemperatureStore.HistoryTemperatureChart.on('click', (param) => {
+    packTemperatureStore.HistoryTemperatureChart.on('click', 'series', (param) => {
       const temparr = []
       const dataIndex = param.dataIndex
       const series = packTemperatureStore.HistoryTemperatureChart.getOption().series

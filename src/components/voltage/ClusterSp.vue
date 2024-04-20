@@ -99,7 +99,7 @@ const UpdateChart = async () => {
       }
       Chart.setOption(option)
     } else {
-      clusterStore.packVoltageChart.on('click', (param) => {
+      clusterStore.packVoltageChart.on('click', 'series.line', (param) => {
         const temparr = []
         const dataIndex = param.dataIndex
         const series = clusterStore.packVoltageChart.getOption().series

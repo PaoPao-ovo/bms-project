@@ -11,6 +11,7 @@ const options = {
   color: ['#00f2f1'],
   tooltip: {
     trigger: 'axis',
+    triggerOn: 'click',
     axisPointer: {
       type: 'shadow'
     },
@@ -70,7 +71,9 @@ const DisabledDate = (time) => {
 }
 
 onMounted(() => {
-  const VoltagesCompareChart = echarts.init(document.getElementById('VoltagesCompare'))
+  const VoltagesCompareChart = echarts.init(document.getElementById('VoltagesCompare'), {
+    useCoarsePointer: true
+  })
   packvoltageStore.packVoltageChart = VoltagesCompareChart
   VoltagesCompareChart.setOption(options)
   window.addEventListener('resize', function () {

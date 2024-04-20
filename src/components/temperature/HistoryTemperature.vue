@@ -77,7 +77,9 @@ const DisabledDate = (time) => {
 }
 
 onMounted(() => {
-  const TempCompareChart = echarts.init(document.getElementById('TempCompare'))
+  const TempCompareChart = echarts.init(document.getElementById('TempCompare'), {
+    useCoarsePointer: true
+  })
   packtempStore.HistoryTemperatureChart = TempCompareChart
   TempCompareChart.setOption(options)
   window.addEventListener('resize', function () {
