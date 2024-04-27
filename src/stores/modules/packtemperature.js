@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, shallowRef } from 'vue'
 import { TempGetService, GetHistoryTempService } from '@/api/bmu'
-
+import { toFixed } from '@/utils/defaultdata'
 // 电池包温度模块数据
 export const usePackTemperatureStore = defineStore('packtemperature', () => {
   // 电池包的ID
@@ -40,12 +40,12 @@ export const usePackTemperatureStore = defineStore('packtemperature', () => {
       const res = await TempGetService(bmuId.value)
 
       // 系统温度数据修改
-      TemperatureTable.value[0].value1 = res.data['max_temperature'] + ' °C'
-      TemperatureTable.value[0].value2 = res.data['max_temperature_id'] + ' 号'
-      TemperatureTable.value[1].value1 = res.data['min_temperature'] + ' °C'
-      TemperatureTable.value[1].value2 = res.data['min_temperature_id'] + ' 号'
-      TemperatureTable.value[2].value1 = res.data['average_of_temperature'] + ' °C'
-      TemperatureTable.value[2].value2 = res.data['range_of_temperature'] + ' °C'
+      TemperatureTable.value[0].value1 = toFixed(res.data['max_temperature']) + ' °C'
+      TemperatureTable.value[0].value2 = toFixed(res.data['max_temperature_id']) + ' 号'
+      TemperatureTable.value[1].value1 = toFixed(res.data['min_temperature']) + ' °C'
+      TemperatureTable.value[1].value2 = toFixed(res.data['min_temperature_id']) + ' 号'
+      TemperatureTable.value[2].value1 = toFixed(res.data['average_of_temperature']) + ' °C'
+      TemperatureTable.value[2].value2 = toFixed(res.data['range_of_temperature']) + ' °C'
     } catch (error) {
       // 系统温度数据重置
       TemperatureTable.value = [

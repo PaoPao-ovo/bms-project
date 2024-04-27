@@ -200,6 +200,10 @@ const UpdateHeatMapChart = (data, Chart) => {
   }
 }
 
+// 保留一位小数
+const toFixed = (num) => {
+  return parseFloat(num).toFixed(1)
+}
 export {
   PackOptions,
   ClusterOptions,
@@ -210,5 +214,6 @@ export {
   FormartHistoryVoltage,
   alarmDataFormat,
   alarmResFormat,
-  UpdateHeatMapChart
+  UpdateHeatMapChart,
+  toFixed
 }
