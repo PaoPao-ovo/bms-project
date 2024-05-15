@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
-const baseURL = 'http://47.103.46.185:5002'
+// const baseURL = 'http://47.103.46.185:5002'
+const baseURL = ''
 const timeout = 10000
 
 const request = axios.create({
