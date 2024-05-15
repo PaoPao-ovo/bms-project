@@ -102,8 +102,8 @@ packtempStore.HeatMapTimerId = setInterval(async () => {
     const data = res.data.temperature
     UpdateHeatMapChart(data, packtempStore.HeatMapChart)
   } catch (error) {
-    const data = []
-    UpdateHeatMapChart(data, packtempStore.HeatMapChart)
+    // const data = []
+    // UpdateHeatMapChart(data, packtempStore.HeatMapChart)
   }
 }, 1000)
 

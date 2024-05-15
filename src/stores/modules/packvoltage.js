@@ -34,8 +34,8 @@ export const usePackVoltageStore = defineStore('packvoltage', () => {
       packVoltage.value = res.data.voltage
       packVoltageX.value = res.data.timedata
     } catch (error) {
-      packVoltage.value = []
-      packVoltageX.value = []
+      // packVoltage.value = []
+      // packVoltageX.value = []
     }
   }
 
@@ -52,8 +52,8 @@ export const usePackVoltageStore = defineStore('packvoltage', () => {
       clusterVoltage.value = res.data.voltage
       clusterVoltageX.value = res.data.timedata
     } catch (error) {
-      clusterVoltage.value = []
-      clusterVoltageX.value = []
+      // clusterVoltage.value = []
+      // clusterVoltageX.value = []
     }
   }
 
@@ -66,7 +66,7 @@ export const usePackVoltageStore = defineStore('packvoltage', () => {
       const res = await AlarmGetService(bmuId.value)
       packWarnList.value = res.data.alarm
     } catch (error) {
-      packWarnList.value = []
+      // packWarnList.value = []
     }
   }
 
@@ -82,7 +82,7 @@ export const usePackVoltageStore = defineStore('packvoltage', () => {
       const res = await GetClusterVolService(+clusterMode.value)
       clusterSpVoltage.value = res.data.voltage
     } catch (error) {
-      clusterSpVoltage.value = []
+      // clusterSpVoltage.value = []
     }
   }
 

@@ -109,8 +109,8 @@ const Timer = setInterval(async () => {
     const data = res.data.temperature
     UpdateChart(data)
   } catch (error) {
-    const data = []
-    UpdateChart(data)
+    // const data = []
+    // UpdateChart(data)
   }
 }, 1000)
 
