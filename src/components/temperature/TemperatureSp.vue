@@ -133,8 +133,8 @@ const ModeChange = () => {
         const data = res.data.temperature
         UpdateChart(data)
       } catch (error) {
-        const data = []
-        UpdateChart(data)
+        // const data = []
+        // UpdateChart(data)
       }
     }, 1000)
 
@@ -144,8 +144,8 @@ const ModeChange = () => {
         const data = res.data.temperature
         UpdateHeatMapChart(data, packTemperatureStore.HeatMapChart)
       } catch (error) {
-        const data = []
-        UpdateHeatMapChart(data, packTemperatureStore.HeatMapChart)
+        // const data = []
+        // UpdateHeatMapChart(data, packTemperatureStore.HeatMapChart)
       }
     }, 1000)
   } else {
