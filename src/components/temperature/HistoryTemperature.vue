@@ -168,8 +168,15 @@ watch(SelectDate, async (newVal) => {
 
 <template>
   <div class="timeselect">
-    <el-date-picker v-model="SelectDate" @change="UpdateDate" class="timeselect" style="width: 1.5rem; height: 0.3rem"
-      type="date" :disabled-date="DisabledDate" placeholder="选择日期" />
+    <el-date-picker
+      v-model="SelectDate"
+      @change="UpdateDate"
+      class="timeselect"
+      style="width: 1.5rem; height: 0.3rem"
+      type="date"
+      :disabled-date="DisabledDate"
+      placeholder="选择日期"
+    />
   </div>
   <h2>温度变化曲线</h2>
   <div class="chart" id="TempCompare"></div>

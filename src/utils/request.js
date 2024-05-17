@@ -17,7 +17,7 @@ request.interceptors.request.use(
     return config
   },
   (err) => {
-    ElMessage("请求失败")
+    ElMessage('请求失败')
     return Promise.reject(err.message)
   }
 )
@@ -27,7 +27,7 @@ request.interceptors.response.use(
     return res
   },
   (err) => {
-    ElMessage("响应失败")
+    ElMessage('响应失败')
     return Promise.reject(err.message)
   }
 )
