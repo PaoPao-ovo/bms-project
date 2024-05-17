@@ -146,16 +146,23 @@ const VoltageTimer = setInterval(() => {
 const TimerId = ref(VoltageTimer)
 
 // 监听日期变化,更新图表并调整定时器
-watch(DateRef, (newVal) => {
-  if (SelectDateFormate(newVal) !== TodayDateFormate()) {
-    clearInterval(TimerId.value)
-    TimerId.value = null
+// watch(DateRef, (newVal) => {
+//   if (SelectDateFormate(newVal) !== TodayDateFormate()) {
+//     clearInterval(TimerId.value)
+//     TimerId.value = null
+//     ChartOptionUpdate()
+//   } else {
+//     TimerId.value = setInterval(() => {
+//       ChartOptionUpdate()
+//     }, 1000)
+//   }
+// })
+
+watch(DateRef, () => {
+  clearInterval(TimerId.value)
+  TimerId.value = setInterval(() => {
     ChartOptionUpdate()
-  } else {
-    TimerId.value = setInterval(() => {
-      ChartOptionUpdate()
-    }, 1000)
-  }
+  }, 1000)
 })
 
 // 电池包类型变化,更新图表并调整定时器
@@ -182,15 +189,8 @@ watch(ModeRef, () => {
     </el-radio-group>
   </div>
   <div class="timeselect">
-    <el-date-picker
-      v-model="DateRef"
-      @change="DateUpdate"
-      class="timeselect"
-      style="width: 1.5rem; height: 0.3rem"
-      type="date"
-      :disabled-date="DisabledDate"
-      placeholder="选择日期"
-    />
+    <el-date-picker v-model="DateRef" @change="DateUpdate" class="timeselect" style="width: 1.5rem; height: 0.3rem"
+      type="date" :disabled-date="DisabledDate" placeholder="选择日期" />
   </div>
   <h2>电压变化曲线</h2>
   <div class="chart" id="VoltagesCompare"></div>

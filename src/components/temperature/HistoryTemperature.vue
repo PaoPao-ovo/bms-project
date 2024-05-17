@@ -117,26 +117,41 @@ const TemperatureUpdateTimer = setInterval(
 const TimerID = ref(TemperatureUpdateTimer)
 
 // 监听日期变化（更新数据）
+// watch(SelectDate, async (newVal) => {
+//   const SelTime = SelectDateFormate(newVal)
+//   if (SelTime === TodayDateFormate()) {
+//     if (TimerID.value === null) {
+//       TimerID.value = setInterval(async () => {
+//         await packtempStore.setTemperatureLineData(SelTime)
+//         const options = {
+//           series: FormartHistoryTemperature(packtempStore.TemperatureLineData),
+//           xAxis: {
+//             data: packtempStore.xAxisData
+//           }
+//         }
+//         if (packtempStore.HistoryTemperatureChart !== null) {
+//           packtempStore.HistoryTemperatureChart.setOption(options)
+//         }
+//       }, 1000)
+//     }
+//   } else {
+//     clearInterval(TimerID.value)
+//     TimerID.value = null
+//     await packtempStore.setTemperatureLineData(SelTime)
+//     const options = {
+//       series: FormartHistoryTemperature(packtempStore.TemperatureLineData),
+//       xAxis: {
+//         data: packtempStore.xAxisData
+//       }
+//     }
+//     packtempStore.HistoryTemperatureChart.setOption(options)
+//   }
+// })
+
 watch(SelectDate, async (newVal) => {
   const SelTime = SelectDateFormate(newVal)
-  if (SelTime === TodayDateFormate()) {
-    if (TimerID.value === null) {
-      TimerID.value = setInterval(async () => {
-        await packtempStore.setTemperatureLineData(SelTime)
-        const options = {
-          series: FormartHistoryTemperature(packtempStore.TemperatureLineData),
-          xAxis: {
-            data: packtempStore.xAxisData
-          }
-        }
-        if (packtempStore.HistoryTemperatureChart !== null) {
-          packtempStore.HistoryTemperatureChart.setOption(options)
-        }
-      }, 1000)
-    }
-  } else {
-    clearInterval(TimerID.value)
-    TimerID.value = null
+  clearInterval(TimerID.value)
+  TimerID.value = setInterval(async () => {
     await packtempStore.setTemperatureLineData(SelTime)
     const options = {
       series: FormartHistoryTemperature(packtempStore.TemperatureLineData),
@@ -144,22 +159,17 @@ watch(SelectDate, async (newVal) => {
         data: packtempStore.xAxisData
       }
     }
-    packtempStore.HistoryTemperatureChart.setOption(options)
-  }
+    if (packtempStore.HistoryTemperatureChart !== null) {
+      packtempStore.HistoryTemperatureChart.setOption(options)
+    }
+  }, 1000)
 })
 </script>
 
 <template>
   <div class="timeselect">
-    <el-date-picker
-      v-model="SelectDate"
-      @change="UpdateDate"
-      class="timeselect"
-      style="width: 1.5rem; height: 0.3rem"
-      type="date"
-      :disabled-date="DisabledDate"
-      placeholder="选择日期"
-    />
+    <el-date-picker v-model="SelectDate" @change="UpdateDate" class="timeselect" style="width: 1.5rem; height: 0.3rem"
+      type="date" :disabled-date="DisabledDate" placeholder="选择日期" />
   </div>
   <h2>温度变化曲线</h2>
   <div class="chart" id="TempCompare"></div>
