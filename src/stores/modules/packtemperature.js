@@ -34,6 +34,9 @@ export const usePackTemperatureStore = defineStore('packtemperature', () => {
     }
   ])
 
+  // 系统温度数据定时器ID
+  const SystemTemperatureTimerId = ref(null)
+
   // 温度数据修改和重置(系统温度数据)
   const setTemperatureData = async () => {
     try {
@@ -112,6 +115,7 @@ export const usePackTemperatureStore = defineStore('packtemperature', () => {
     HeatMapChart,
     setBmuId,
     setTemperatureData,
-    setTemperatureLineData
+    setTemperatureLineData,
+    SystemTemperatureTimerId
   }
 })

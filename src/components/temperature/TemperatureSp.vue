@@ -5,7 +5,7 @@ import { onMounted, ref } from 'vue'
 import { TempGetService } from '@/api/bmu'
 import { usePackTemperatureStore } from '@/stores/modules/packtemperature'
 import { storeToRefs } from 'pinia'
-import { UpdateHeatMapChart } from '@/utils/defaultdata'
+import { UpdateHeatMapChart, UpdateSystemChart, toFixed } from '@/utils/defaultdata'
 
 // 温度数据仓库
 const packTemperatureStore = usePackTemperatureStore()
@@ -127,6 +127,7 @@ const ModeChange = () => {
     // 开启定时器
     clearInterval(TimerId.value)
     clearInterval(packTemperatureStore.HeatMapTimerId)
+    clearInterval(packTemperatureStore.SystemTemperatureTimerId)
     TimerId.value = setInterval(async () => {
       try {
         const res = await TempGetService(packTemperatureStore.bmuId)
@@ -148,10 +149,15 @@ const ModeChange = () => {
         // UpdateHeatMapChart(data, packTemperatureStore.HeatMapChart)
       }
     }, 1000)
+
+    packTemperatureStore.SystemTemperatureTimerId = setInterval(async () => {
+      await packTemperatureStore.setTemperatureData()
+    }, 1000)
   } else {
     // 取消定时器
     clearInterval(TimerId.value)
     clearInterval(packTemperatureStore.HeatMapTimerId)
+    clearInterval(packTemperatureStore.SystemTemperatureTimerId)
     // 添加点击事件
     packTemperatureStore.HistoryTemperatureChart.on('click', 'series', (param) => {
       const temparr = []
@@ -169,6 +175,13 @@ const ModeChange = () => {
       }
       Chart.setOption(option)
       UpdateHeatMapChart(temparr, packTemperatureStore.HeatMapChart)
+      const ResultArr = UpdateSystemChart(temparr)
+      packTemperatureStore.TemperatureTable[0].value1 = toFixed(ResultArr[0]) + ' °C'
+      packTemperatureStore.TemperatureTable[0].value2 = toFixed(ResultArr[1]) + ' 号'
+      packTemperatureStore.TemperatureTable[1].value1 = toFixed(ResultArr[2]) + ' °C'
+      packTemperatureStore.TemperatureTable[1].value2 = toFixed(ResultArr[3]) + ' 号'
+      packTemperatureStore.TemperatureTable[2].value1 = toFixed(ResultArr[5]) + ' °C'
+      packTemperatureStore.TemperatureTable[2].value2 = toFixed(ResultArr[4]) + ' °C'
     })
 
     // 初始值配置
@@ -186,6 +199,13 @@ const ModeChange = () => {
     }
     Chart.setOption(option)
     UpdateHeatMapChart(temparr, packTemperatureStore.HeatMapChart)
+    const ResultArr = UpdateSystemChart(temparr)
+    packTemperatureStore.TemperatureTable[0].value1 = toFixed(ResultArr[0]) + ' °C'
+    packTemperatureStore.TemperatureTable[0].value2 = toFixed(ResultArr[1]) + ' 号'
+    packTemperatureStore.TemperatureTable[1].value1 = toFixed(ResultArr[2]) + ' °C'
+    packTemperatureStore.TemperatureTable[1].value2 = toFixed(ResultArr[3]) + ' 号'
+    packTemperatureStore.TemperatureTable[2].value1 = toFixed(ResultArr[5]) + ' °C'
+    packTemperatureStore.TemperatureTable[2].value2 = toFixed(ResultArr[4]) + ' °C'
   }
 }
 </script>
