@@ -203,28 +203,28 @@ const UpdateHeatMapChart = (data, Chart) => {
 
 function getMaxAndMinIndex(arr) {
   if (!Array.isArray(arr) || arr.length === 0) {
-    return { max: null, maxIndex: null, min: null, minIndex: null };
+    return { max: null, maxIndex: null, min: null, minIndex: null }
   }
 
-  let max = arr[0];
-  let maxIndex = 0;
-  let min = arr[0];
-  let minIndex = 0;
-  let sum = 0;
+  let max = arr[0]
+  let maxIndex = 0
+  let min = arr[0]
+  let minIndex = 0
+  let sum = 0
 
   for (let i = 1; i < arr.length; i++) {
-    sum = sum + (+arr[i]);
+    sum = sum + +arr[i]
     if (arr[i] > max) {
-      max = arr[i];
-      maxIndex = i;
+      max = arr[i]
+      maxIndex = i
     }
     if (arr[i] < min) {
-      min = arr[i];
-      minIndex = i;
+      min = arr[i]
+      minIndex = i
     }
   }
 
-  return [max, +maxIndex + 1, min, +minIndex + 1, max - min, +sum / 50];
+  return [max, +maxIndex + 1, min, +minIndex + 1, max - min, +sum / 50]
 }
 
 const UpdateSystemChart = (data) => {

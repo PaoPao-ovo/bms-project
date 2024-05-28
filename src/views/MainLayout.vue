@@ -12,12 +12,12 @@ import { usePackTemperatureStore } from '@/stores/modules/packtemperature'
 import { VolGetService } from '@/api/bmu'
 import { ref, watch, computed } from 'vue'
 import { PackOptions, ClusterOptions } from '@/utils/defaultdata'
-
 // const LoadJs = async () => {
 //   await import('@/assets/js/flexible.js')
 // }
 
 // LoadJs()
+
 
 // 电池包pinia
 const packtempStore = usePackTemperatureStore()
