@@ -124,6 +124,7 @@ onBeforeUnmount(() => {
 <style scoped>
 .chart {
   height: 200px;
+  width: 100%;
 }
 
 h2 {

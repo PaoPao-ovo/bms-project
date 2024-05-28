@@ -103,7 +103,7 @@ body {
   flex-direction: column;
   position: relative;
   background: url(../assets/image/bgc.png) no-repeat top center;
-  /* background-size: 100% 100%; */
+  background-size: 100% 100%;
 }
 
 .headercontainer {
@@ -129,6 +129,7 @@ body {
 }
 
 .chartmobile {
+
   margin: 8px 0px 8px 0px;
   width: 100%;
   height: 100%;
