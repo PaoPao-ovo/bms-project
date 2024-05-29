@@ -8,7 +8,8 @@ const request = axios.create({
   baseURL,
   timeout,
   headers: {
-    'Access-Control-Allow-Origin': '*'
+    'Access-Control-Allow-Origin': '*',
+    'setContentType': 'application/json;charset=UTF-8',
   }
 })
 

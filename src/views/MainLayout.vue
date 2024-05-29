@@ -8,16 +8,11 @@ import HistoryTemperature from '@/components/temperature/HistoryTemperature.vue'
 import VoltageLine from '@/components/voltage/VoltageLine.vue'
 import WarnView from '@/components/warn/WarnView.vue'
 import ClusterSp from '@/components/voltage/ClusterSp.vue'
+import PackModel from '@/components/packmodel/PackModel.vue'
 import { usePackTemperatureStore } from '@/stores/modules/packtemperature'
 import { VolGetService } from '@/api/bmu'
 import { ref, watch, computed } from 'vue'
 import { PackOptions, ClusterOptions } from '@/utils/defaultdata'
-// const LoadJs = async () => {
-//   await import('@/assets/js/flexible.js')
-// }
-
-// LoadJs()
-
 
 // 电池包pinia
 const packtempStore = usePackTemperatureStore()
@@ -82,7 +77,7 @@ setInterval(async () => {
   } catch (error) {
     // TitleDataRef.value.Voltage = null
   }
-}, 1000)
+}, 1000 * 60)
 </script>
 
 <template>
@@ -128,6 +123,12 @@ setInterval(async () => {
         </div>
         <div class="panel">
           <ClusterSp />
+        </div>
+        <div class="panel">
+          <PackModel />
+        </div>
+        <div class="panel">
+          <!-- <PackModel /> -->
         </div>
       </div>
       <div class="column">
