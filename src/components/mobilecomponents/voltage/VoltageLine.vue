@@ -190,14 +190,20 @@ watch(ModeRef, () => {
       </el-radio-group>
     </div>
     <div class="timeselect">
-      <el-date-picker v-model="DateRef" @change="DateUpdate" class="timeselect" style="width: 120px; height: 20px"
-        type="date" :disabled-date="DisabledDate" placeholder="选择日期" />
+      <el-date-picker
+        v-model="DateRef"
+        @change="DateUpdate"
+        class="timeselect"
+        style="width: 120px; height: 20px"
+        type="date"
+        :disabled-date="DisabledDate"
+        placeholder="选择日期"
+      />
     </div>
     <h2>电压变化曲线</h2>
     <div class="chart" id="VoltagesCompare1"></div>
     <div class="panel-footer"></div>
   </div>
-
 </template>
 
 <style scoped>

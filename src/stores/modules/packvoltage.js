@@ -81,8 +81,10 @@ export const usePackVoltageStore = defineStore('packvoltage', () => {
     try {
       const res = await GetClusterVolService(+clusterMode.value)
       clusterSpVoltage.value = res.data.voltage
+      return true
     } catch (error) {
       // clusterSpVoltage.value = []
+      return null
     }
   }
 

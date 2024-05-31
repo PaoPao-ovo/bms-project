@@ -1,9 +1,5 @@
 <template>
-  <div id="3dchart">
-
-  </div>
+  <div id="3dchart"></div>
 </template>
-<script scoped>
-
-</script>
+<script scoped></script>
 <style></style>

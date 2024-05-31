@@ -175,7 +175,6 @@ const ModeChange = (newVal) => {
       <div class="panel-footer"></div>
     </div>
   </div>
-
 </template>
 
 <style scoped>

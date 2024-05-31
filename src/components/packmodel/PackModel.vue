@@ -41,7 +41,7 @@ const options = {
     show: false,
     calculable: true,
     left: '10%',
-    top: '2%',
+    top: '2%'
   },
   series: [
     {
@@ -67,9 +67,7 @@ onMounted(() => {
     PackChartcontainer1.resize()
   })
 })
-
 </script>
-
 
 <template>
   <div>

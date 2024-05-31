@@ -4,13 +4,23 @@
   </div>
   <div class="selconntainer">
     <el-select v-model="SelectRef.ClusterId" placeholder="选择电池簇" @change="ClusteridChange">
-      <el-option v-for="item in ClusterOptions" :key="item.value" :label="item.label" :value="item.value" />
+      <el-option
+        v-for="item in ClusterOptions"
+        :key="item.value"
+        :label="item.label"
+        :value="item.value"
+      />
     </el-select>
     <el-select v-model="SelectRef.PackId" placeholder="选择电池" @change="PackidChange">
-      <el-option v-for="item in PackOptions" :key="item.value" :label="item.label" :value="item.value" />
+      <el-option
+        v-for="item in PackOptions"
+        :key="item.value"
+        :label="item.label"
+        :value="item.value"
+      />
     </el-select>
   </div>
-  <div style="height: 66px;"></div>
+  <div style="height: 66px"></div>
   <div class="chartmobile">
     <TemperatureInfo />
   </div>
@@ -32,23 +42,21 @@
   <div class="chartmobile">
     <WarnView />
   </div>
-  <div style="height: 100px;"></div>
+  <div style="height: 100px"></div>
 </template>
 
 <script setup>
 import TemperatureSp from '@/components/mobilecomponents/temperature/TemperatureSp.vue'
-import HeatMap from '@/components/mobilecomponents/temperature/HeatMap.vue';
-import HistoryTemperature from '@/components/mobilecomponents/temperature/HistoryTemperature.vue';
-import ClusterSp from '@/components/mobilecomponents/voltage/ClusterSp.vue';
-import VoltageLine from '@/components/mobilecomponents/voltage/VoltageLine.vue';
-import TemperatureInfo from '@/components/mobilecomponents/temperature/TemperatureInfo.vue';
-import WarnView from '@/components/mobilecomponents/warn/WarnView.vue';
+import HeatMap from '@/components/mobilecomponents/temperature/HeatMap.vue'
+import HistoryTemperature from '@/components/mobilecomponents/temperature/HistoryTemperature.vue'
+import ClusterSp from '@/components/mobilecomponents/voltage/ClusterSp.vue'
+import VoltageLine from '@/components/mobilecomponents/voltage/VoltageLine.vue'
+import TemperatureInfo from '@/components/mobilecomponents/temperature/TemperatureInfo.vue'
+import WarnView from '@/components/mobilecomponents/warn/WarnView.vue'
 import { usePackTemperatureStore } from '@/stores/modules/packtemperature'
 // import { VolGetService } from '@/api/bmu'
 import { ref, watch, computed } from 'vue'
 import { PackOptions, ClusterOptions } from '@/utils/defaultdata'
-
-
 
 // 电池包pinia
 const packtempStore = usePackTemperatureStore()
@@ -129,7 +137,6 @@ body {
 }
 
 .chartmobile {
-
   margin: 8px 0px 8px 0px;
   width: 100%;
   height: 100%;
@@ -143,6 +150,6 @@ body {
   z-index: 2001;
   width: 150px;
   height: 20px;
-  top: 10px
+  top: 10px;
 }
 </style>

@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { ElMessage } from 'element-plus'
+
 const baseURL = 'http://47.103.46.185:5002'
 // const baseURL = ''
 const timeout = 10000
@@ -9,7 +9,7 @@ const request = axios.create({
   timeout,
   headers: {
     'Access-Control-Allow-Origin': '*',
-    'setContentType': 'application/json;charset=UTF-8',
+    setContentType: 'application/json;charset=UTF-8'
   }
 })
 
@@ -17,9 +17,9 @@ request.interceptors.request.use(
   (config) => {
     return config
   },
-  (err) => {
-    ElMessage('请求失败')
-    return Promise.reject(err.message)
+  () => {
+    // ElMessage('请求失败')
+    return null
   }
 )
 
@@ -27,9 +27,9 @@ request.interceptors.response.use(
   (res) => {
     return res
   },
-  (err) => {
-    ElMessage('响应失败')
-    return Promise.reject(err.message)
+  () => {
+    // ElMessage('响应失败')
+    return null
   }
 )
 

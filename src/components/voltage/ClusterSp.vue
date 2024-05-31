@@ -4,7 +4,6 @@ import { xAxisData } from '@/utils/defaultdata'
 import { onMounted, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import * as echarts from 'echarts'
-
 const clusterStore = usePackVoltageStore()
 
 const options = {
@@ -89,15 +88,19 @@ const UpdateChart = async () => {
   if (Chart !== null) {
     if (+clusterStore.clusterMode !== 5) {
       clusterStore.packVoltageChart.off('click')
-      await clusterStore.setClusterSp() // 获取数据
-      const option = {
-        series: [
-          {
-            data: clusterStore.clusterSpVoltage.map((item) => item / 1000)
-          }
-        ]
+      const promise = await clusterStore.setClusterSp() // 获取数据
+      if (promise === null) {
+        return false
+      } else {
+        const option = {
+          series: [
+            {
+              data: clusterStore.clusterSpVoltage.map((item) => item / 1000)
+            }
+          ]
+        }
+        Chart.setOption(option)
       }
-      Chart.setOption(option)
     } else {
       clusterStore.packVoltageChart.on('click', 'series.line', (param) => {
         const temparr = []
@@ -133,8 +136,22 @@ const UpdateChart = async () => {
 }
 
 // 电压更新定时器初始化
-const VoltageTimer = setInterval(() => {
-  UpdateChart()
+let VoltageTimer = setInterval(async () => {
+  const res = await UpdateChart()
+  if (res === false) {
+    clearInterval(VoltageTimer)
+    let MaxAttempts = 3
+    const retryTimer = setInterval(async () => {
+      const res = await clusterStore.setClusterSp()
+      MaxAttempts--
+      if (res !== null) {
+        clearInterval(retryTimer)
+      } else if (MaxAttempts === 0) {
+        clearInterval(retryTimer)
+      }
+    }, 1000)
+
+  }
 }, 1000)
 
 const TimerId = ref(VoltageTimer)

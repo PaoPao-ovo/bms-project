@@ -49,6 +49,8 @@ export const usePackTemperatureStore = defineStore('packtemperature', () => {
       TemperatureTable.value[1].value2 = toFixed(res.data['min_temperature_id']) + ' 号'
       TemperatureTable.value[2].value1 = toFixed(res.data['average_of_temperature']) + ' °C'
       TemperatureTable.value[2].value2 = toFixed(res.data['range_of_temperature']) + ' °C'
+
+      return true
     } catch (error) {
       // 系统温度数据重置
       // TemperatureTable.value = [
@@ -71,6 +73,7 @@ export const usePackTemperatureStore = defineStore('packtemperature', () => {
       //     value2: null
       //   }
       // ]
+      return null
     }
   }
 
@@ -86,9 +89,9 @@ export const usePackTemperatureStore = defineStore('packtemperature', () => {
       const res = await GetHistoryTempService(bmuId.value, date)
       TemperatureLineData.value = res.data.temperature
       xAxisData.value = res.data.timedata
+      return true
     } catch (error) {
-      // TemperatureLineData.value = []
-      // xAxisData.value = []
+      return null
     }
   }
 

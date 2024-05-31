@@ -8,12 +8,13 @@ import HistoryTemperature from '@/components/temperature/HistoryTemperature.vue'
 import VoltageLine from '@/components/voltage/VoltageLine.vue'
 import WarnView from '@/components/warn/WarnView.vue'
 import ClusterSp from '@/components/voltage/ClusterSp.vue'
-import PackModel from '@/components/packmodel/PackModel.vue'
+// import PackModel from '@/components/packmodel/PackModel.vue'
 import { usePackTemperatureStore } from '@/stores/modules/packtemperature'
 import { VolGetService } from '@/api/bmu'
 import { ref, watch, computed } from 'vue'
 import { PackOptions, ClusterOptions } from '@/utils/defaultdata'
-
+import { RetryFun } from '@/utils/retry'
+import { ElMessage } from 'element-plus'
 // 电池包pinia
 const packtempStore = usePackTemperatureStore()
 
@@ -58,26 +59,59 @@ const TitleContent = computed(() => {
   }
 })
 
+await packtempStore.setTemperatureData()
+
 // 温度数据定时更新
-// setInterval(async () => {
-//   await packtempStore.setTemperatureData()
-// }, 1000)
+let TemperaID = setInterval(
+  async function callback() {
+    const res = await packtempStore.setTemperatureData()
+    if (res === null) {
+      const retryresult = await RetryFun(packtempStore.setTemperatureData, 1000, 3, TemperaID)
+      if (retryresult === null) {
+        ElMessage('请求失败,请刷新')
+      } else {
+        ElMessage.success('恢复成功')
+        TemperaID = setInterval(callback, 1000 * 60 * 3)
+      }
+    }
+  },
+  1000 * 60 * 3
+)
 
 const TitleDataRef = ref({
   Voltage: null,
   Temperature: null
 })
 
-// 标题数据定时更新
-setInterval(async () => {
+const TitleFn = async () => {
   try {
     TitleDataRef.value.Temperature = packtempStore.TemperatureTable[2].value1
     const res = await VolGetService(packtempStore.bmuId)
     TitleDataRef.value.Voltage = res.data.voltage / 1000 + ' V'
+    return true
   } catch (error) {
-    // TitleDataRef.value.Voltage = null
+    return null
   }
-}, 1000 * 60)
+}
+
+await TitleFn()
+
+// 标题数据定时更新
+let TitleId = setInterval(
+  async function callback() {
+    const res = await TitleFn()
+    if (res === null) {
+      const retryresult = await RetryFun(TitleFn, 1000, 3, TitleId)
+      if (retryresult === null) {
+        ElMessage('请求失败,请刷新')
+      } else {
+        ElMessage.success('恢复成功')
+        TitleId = setInterval(callback, 1000 * 60 * 3)
+      }
+    }
+  },
+  1000 * 60 * 3
+)
 </script>
 
 <template>
@@ -124,12 +158,12 @@ setInterval(async () => {
         <div class="panel">
           <ClusterSp />
         </div>
-        <div class="panel">
+        <!-- <div class="panel">
           <PackModel />
         </div>
         <div class="panel">
-          <!-- <PackModel /> -->
-        </div>
+          <PackModel />
+        </div> -->
       </div>
       <div class="column">
         <div class="panel">

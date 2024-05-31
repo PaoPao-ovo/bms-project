@@ -6,7 +6,8 @@ import { TempGetService } from '@/api/bmu'
 import { usePackTemperatureStore } from '@/stores/modules/packtemperature'
 import { storeToRefs } from 'pinia'
 import { UpdateHeatMapChart, UpdateSystemChart, toFixed } from '@/utils/defaultdata'
-
+import { RetryFun1, RetryFun } from '@/utils/retry'
+import { ElMessage } from 'element-plus'
 // 温度数据仓库
 const packTemperatureStore = usePackTemperatureStore()
 
@@ -80,16 +81,6 @@ const option = {
 
 let Chart = null
 
-// 初始化表格
-onMounted(() => {
-  const TempertureSpChart = echarts.init(document.getElementById('TempertureSp'))
-  Chart = TempertureSpChart
-  TempertureSpChart.setOption(option)
-  window.addEventListener('resize', function () {
-    TempertureSpChart.resize()
-  })
-})
-
 // 图表更新函数(散点图)
 const UpdateChart = (data) => {
   const option = {
@@ -102,17 +93,47 @@ const UpdateChart = (data) => {
   Chart.setOption(option)
 }
 
+// 初始化表格
+onMounted(async () => {
+  const TempertureSpChart = echarts.init(document.getElementById('TempertureSp'))
+  Chart = TempertureSpChart
+  TempertureSpChart.setOption(option)
+  window.addEventListener('resize', function () {
+    TempertureSpChart.resize()
+  })
+
+  const res = await TempGetService(packTemperatureStore.bmuId)
+  const data = res.data.temperature
+  UpdateChart(data)
+})
+
 // 定时更新初始化
-const Timer = setInterval(async () => {
-  try {
-    const res = await TempGetService(packTemperatureStore.bmuId)
-    const data = res.data.temperature
-    UpdateChart(data)
-  } catch (error) {
-    // const data = []
-    // UpdateChart(data)
-  }
-}, 1000)
+let Timer = setInterval(
+  async function callback() {
+    try {
+      const res = await TempGetService(packTemperatureStore.bmuId)
+      const data = res.data.temperature
+      UpdateChart(data)
+    } catch (error) {
+      const retryresult = await RetryFun1(
+        TempGetService,
+        1000,
+        3,
+        Timer,
+        packTemperatureStore.bmuId
+      )
+      if (retryresult === null) {
+        ElMessage.error('获取温度数据失败,请刷新页面')
+      } else {
+        ElMessage.success('温度数据恢复成功')
+        Timer = setInterval(callback, 1000)
+      }
+      // const data = []
+      // UpdateChart(data)
+    }
+  },
+  1000 * 60 * 3
+)
 
 // 定时器ID
 const TimerId = ref(Timer)
@@ -128,31 +149,68 @@ const ModeChange = () => {
     clearInterval(TimerId.value)
     clearInterval(packTemperatureStore.HeatMapTimerId)
     clearInterval(packTemperatureStore.SystemTemperatureTimerId)
-    TimerId.value = setInterval(async () => {
-      try {
-        const res = await TempGetService(packTemperatureStore.bmuId)
-        const data = res.data.temperature
-        UpdateChart(data)
-      } catch (error) {
-        // const data = []
-        // UpdateChart(data)
-      }
-    }, 1000)
+    TimerId.value = setInterval(
+      async function callback() {
+        try {
+          const res = await TempGetService(packTemperatureStore.bmuId)
+          const data = res.data.temperature
+          UpdateChart(data)
+        } catch (error) {
+          const retryresult = await RetryFun1(
+            TempGetService,
+            1000,
+            3,
+            Timer,
+            packTemperatureStore.bmuId
+          )
+          if (retryresult === null) {
+            ElMessage.error('获取温度数据失败,请刷新页面')
+          } else {
+            ElMessage.success('温度数据恢复成功')
+            Timer = setInterval(callback, 1000)
+          }
+          // const data = []
+          // UpdateChart(data)
+        }
+      },
+      1000 * 60 * 3
+    )
 
-    packTemperatureStore.HeatMapTimerId = setInterval(async () => {
+    packTemperatureStore.HeatMapTimerId = setInterval(async function callback() {
       try {
         const res = await TempGetService(packTemperatureStore.bmuId)
         const data = res.data.temperature
         UpdateHeatMapChart(data, packTemperatureStore.HeatMapChart)
       } catch (error) {
-        // const data = []
-        // UpdateHeatMapChart(data, packTemperatureStore.HeatMapChart)
+        const retryresult = await RetryFun1(
+          TempGetService,
+          1000,
+          3,
+          packTemperatureStore.HeatMapTimerId,
+          packTemperatureStore.bmuId
+        )
+        if (retryresult === null) {
+          ElMessage.error('获取温度数据失败,请刷新页面')
+        } else {
+          ElMessage.success('温度数据恢复成功')
+          packTemperatureStore.HeatMapTimerId = setInterval(callback, 1000 * 60 * 3)
+        }
       }
-    }, 1000)
+    }, 1000 * 60 * 3)
 
-    packTemperatureStore.SystemTemperatureTimerId = setInterval(async () => {
-      await packTemperatureStore.setTemperatureData()
-    }, 1000)
+    packTemperatureStore.SystemTemperatureTimerId = setInterval(async function callback() {
+      try {
+        await packTemperatureStore.setTemperatureData()
+      } catch (error) {
+        const retryresult = await RetryFun(packTemperatureStore.setTemperatureData, 1000, 3, packTemperatureStore.SystemTemperatureTimerId)
+        if (retryresult === null) {
+          ElMessage('请求失败,请刷新')
+        } else {
+          ElMessage.success('恢复成功')
+          packTemperatureStore.SystemTemperatureTimerId = setInterval(callback, 1000 * 60 * 3)
+        }
+      }
+    }, 1000 * 60 * 3)
   } else {
     // 取消定时器
     clearInterval(TimerId.value)
