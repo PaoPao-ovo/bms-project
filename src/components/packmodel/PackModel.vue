@@ -30,11 +30,11 @@ const options = {
   xAxis: {
     show: false,
     type: 'category',
-    data: ['1', '6', '11', '16', '21', '26', '31', '36', '41', '46']
+    data: ['1', '6']
   },
   yAxis: {
     type: 'category',
-    data: ['1', '2', '3', '4', '5'],
+    data: ['1', '2'],
     show: false
   },
   visualMap: {

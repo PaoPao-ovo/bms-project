@@ -70,16 +70,18 @@ const FormartHistoryTemperature = (Temperaturelist) => {
 // 簇历史电压数据格式化
 const FormartHistoryVoltage = (VoltageList) => {
   let Series = []
-  if (VoltageList.length > 0) {
-    for (let i = 0; i < VoltageList.length; i++) {
-      Series.push({
-        name: `${i + 1}号电压`,
-        type: 'line',
-        data: VoltageList[i].map((item) => item / 1000)
-      })
+  if (VoltageList.length !== null) {
+    if (VoltageList.length > 0) {
+      for (let i = 0; i < VoltageList.length; i++) {
+        Series.push({
+          name: `${i + 1}号电压`,
+          type: 'line',
+          data: VoltageList[i].map((item) => item / 1000)
+        })
+      }
     }
+    return Series
   }
-  return Series
 }
 
 // 报警参数数组

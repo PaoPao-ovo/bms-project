@@ -131,7 +131,7 @@ const UpdateChart = async () => {
   }
 }
 onMounted(() => {
-  const ClusterVoltageSpChart = echarts.init(document.getElementById('ClusterVoltageSp'))
+  const ClusterVoltageSpChart = echarts.init(document.getElementById('ClusterVoltageSp1'))
   Chart = ClusterVoltageSpChart
   ClusterVoltageSpChart.setOption(options)
   window.addEventListener('resize', function () {

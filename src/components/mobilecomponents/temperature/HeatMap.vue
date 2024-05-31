@@ -90,7 +90,7 @@ const options = {
 
 // 表格初始化
 onMounted(async () => {
-  const HeatMap = echarts.init(document.getElementById('HeatMap'))
+  const HeatMap = echarts.init(document.getElementById('HeatMap1'))
   packtempStore.HeatMapChart = HeatMap
   HeatMap.setOption(options)
   window.addEventListener('resize', function () {

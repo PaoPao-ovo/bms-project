@@ -150,9 +150,20 @@ const TimerId = ref(Timer)
 const { TemperatureChartMode } = storeToRefs(packTemperatureStore)
 
 // 模式切换函数(定时器启停&图表点击事件监听)
-const ModeChange = () => {
+const ModeChange = async () => {
   if (TemperatureChartMode.value === '1') {
     packTemperatureStore.HistoryTemperatureChart.off('click')
+
+    const res = await TempGetService(packTemperatureStore.bmuId)
+    const data = res.data.temperature
+    UpdateChart(data)
+
+    const res1 = await TempGetService(packTemperatureStore.bmuId)
+    const data1 = res1.data.temperature
+    UpdateHeatMapChart(data1, packTemperatureStore.HeatMapChart)
+
+    await packTemperatureStore.setTemperatureData()
+
     // 开启定时器
     clearInterval(TimerId.value)
     clearInterval(packTemperatureStore.HeatMapTimerId)
