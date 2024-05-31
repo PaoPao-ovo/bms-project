@@ -125,7 +125,7 @@ const ChartOptionUpdate = async () => {
 }
 
 onMounted(() => {
-  const VoltagesCompareChart = echarts.init(document.getElementById('VoltagesCompare'), {
+  const VoltagesCompareChart = echarts.init(document.getElementById('VoltagesCompare1'), {
     useCoarsePointer: true
   })
   packvoltageStore.packVoltageChart = VoltagesCompareChart
