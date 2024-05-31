@@ -7,7 +7,7 @@ import { ElMessage } from 'element-plus'
 const packtempStore = usePackTemperatureStore()
 const { TemperatureTable } = storeToRefs(packtempStore)
 
-await packtempStore.setTemperatureData()
+packtempStore.setTemperatureData().then()
 
 packtempStore.SystemTemperatureTimerId = setInterval(async function callback() {
   try {
@@ -15,7 +15,7 @@ packtempStore.SystemTemperatureTimerId = setInterval(async function callback() {
   } catch (error) {
     const retryresult = await RetryFun(packtempStore.setTemperatureData, 1000, 3, packtempStore.SystemTemperatureTimerId)
     if (retryresult === null) {
-      ElMessage('请求失败,请刷新')
+      ElMessage.error('请求失败,请刷新')
     } else {
       ElMessage.success('恢复成功')
       packtempStore.SystemTemperatureTimerId = setInterval(callback, 1000 * 60 * 3)

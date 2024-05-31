@@ -4,6 +4,7 @@ import { xAxisData } from '@/utils/defaultdata'
 import { onMounted, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import * as echarts from 'echarts'
+import { ElMessage } from 'element-plus'
 const clusterStore = usePackVoltageStore()
 
 const options = {
@@ -75,19 +76,12 @@ const options = {
 
 let Chart = null
 
-onMounted(() => {
-  const ClusterVoltageSpChart = echarts.init(document.getElementById('ClusterVoltageSp'))
-  Chart = ClusterVoltageSpChart
-  ClusterVoltageSpChart.setOption(options)
-  window.addEventListener('resize', function () {
-    ClusterVoltageSpChart.resize()
-  })
-})
-
 const UpdateChart = async () => {
   if (Chart !== null) {
     if (+clusterStore.clusterMode !== 5) {
-      clusterStore.packVoltageChart.off('click')
+      if (clusterStore.packVoltageChart != null) {
+        clusterStore.packVoltageChart.off('click')
+      }
       const promise = await clusterStore.setClusterSp() // 获取数据
       if (promise === null) {
         return false
@@ -100,6 +94,7 @@ const UpdateChart = async () => {
           ]
         }
         Chart.setOption(option)
+        return true
       }
     } else {
       clusterStore.packVoltageChart.on('click', 'series.line', (param) => {
@@ -131,28 +126,51 @@ const UpdateChart = async () => {
         ]
       }
       Chart.setOption(option)
+      return true
     }
   }
 }
+onMounted(async () => {
+  const ClusterVoltageSpChart = echarts.init(document.getElementById('ClusterVoltageSp'))
+  Chart = ClusterVoltageSpChart
+  ClusterVoltageSpChart.setOption(options)
+  window.addEventListener('resize', function () {
+    ClusterVoltageSpChart.resize()
+  })
+  UpdateChart().then()
+})
+
+
 
 // 电压更新定时器初始化
-let VoltageTimer = setInterval(async () => {
+let VoltageTimer = setInterval(async function callback() {
   const res = await UpdateChart()
   if (res === false) {
     clearInterval(VoltageTimer)
     let MaxAttempts = 3
-    const retryTimer = setInterval(async () => {
-      const res = await clusterStore.setClusterSp()
-      MaxAttempts--
-      if (res !== null) {
-        clearInterval(retryTimer)
-      } else if (MaxAttempts === 0) {
-        clearInterval(retryTimer)
-      }
-    }, 1000)
+    const retryResult = new Promise(function (resolve) {
+      const retryTimer = setInterval(async () => {
+        const res = await clusterStore.setClusterSp()
+        MaxAttempts--
+        if (res !== null) {
+          clearInterval(retryTimer)
+          resolve(true)
+        } else if (MaxAttempts === 0) {
+          clearInterval(retryTimer)
+          resolve(false)
+        }
+      }, 1000)
+    })
+    const retryResultRes = await retryResult
+    if (retryResultRes === false) {
+      ElMessage.error('簇级电压数据获取数据失败，请刷新页面')
+    } else {
+      ElMessage.success('温簇级电压数据恢复成功')
+      VoltageTimer = setInterval(callback, 1000 * 60 * 3)
+    }
 
   }
-}, 1000)
+}, 1000 * 60 * 3)
 
 const TimerId = ref(VoltageTimer)
 
@@ -164,12 +182,40 @@ const ModeChange = (newVal) => {
     clearInterval(TimerId.value)
     TimerId.value = null
     clusterStore.clusterSpVoltage = []
-    UpdateChart()
+    UpdateChart().then()
   } else {
     if (TimerId.value === null) {
-      TimerId.value = setInterval(() => {
-        UpdateChart()
-      }, 1000)
+      UpdateChart().then()
+      TimerId.value = setInterval(async function callback() {
+        const res = await UpdateChart()
+        if (res === false) {
+          clearInterval(TimerId.value)
+          let MaxAttempts = 3
+          const retryResult = new Promise(function (resolve) {
+            const retryTimer = setInterval(async () => {
+              const res = await clusterStore.setClusterSp()
+              MaxAttempts--
+              if (res !== null) {
+                clearInterval(retryTimer)
+                resolve(true)
+              } else if (MaxAttempts === 0) {
+                clearInterval(retryTimer)
+                resolve(false)
+              }
+            }, 1000)
+          })
+          const retryResultRes = await retryResult
+          if (retryResultRes === false) {
+            ElMessage.error('簇级电压数据获取数据失败，请刷新页面')
+          } else {
+            ElMessage.success('温簇级电压数据恢复成功')
+            TimerId.value = setInterval(callback, 1000 * 60 * 3)
+          }
+
+        }
+      }, 1000 * 60 * 3)
+    } else {
+      UpdateChart().then()
     }
   }
 }

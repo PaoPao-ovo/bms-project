@@ -179,6 +179,31 @@ const TimerID = ref(TemperatureUpdateTimer)
 watch(SelectDate, async (newVal) => {
   const SelTime = SelectDateFormate(newVal)
   clearInterval(TimerID.value)
+  const res = await packtempStore.setTemperatureLineData(SelTime)
+  if (res === true) {
+    const options = {
+      series: FormartHistoryTemperature(packtempStore.TemperatureLineData),
+      xAxis: {
+        data: packtempStore.xAxisData
+      }
+    }
+    if (packtempStore.HistoryTemperatureChart !== null) {
+      packtempStore.HistoryTemperatureChart.setOption(options)
+    }
+  } else {
+    const retryresult = await RetryFun1(
+      packtempStore.setTemperatureLineData,
+      1000,
+      3,
+      TimerID.value,
+      SelTime
+    )
+    if (retryresult === null) {
+      ElMessage.error('获取温度数据失败,请刷新页面')
+    } else {
+      ElMessage.success('温度数据恢复成功')
+    }
+  }
   TimerID.value = setInterval(async function callback() {
     const res = await packtempStore.setTemperatureLineData(SelTime)
     if (res === true) {
