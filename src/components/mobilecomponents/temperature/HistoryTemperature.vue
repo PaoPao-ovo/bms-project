@@ -4,11 +4,20 @@ import * as echarts from 'echarts'
 import { TodayDateFormate, SelectDateFormate } from '@/utils/daytime'
 import { usePackTemperatureStore } from '@/stores/modules/packtemperature'
 import { FormartHistoryTemperature } from '@/utils/defaultdata'
+import { RetryFun1 } from '@/utils/retry'
+import { ElMessage } from 'element-plus'
+import { storeToRefs } from 'pinia'
 
 const packtempStore = usePackTemperatureStore()
 
 // 图表默认属性
 const options = {
+  dataZoom: [
+    {
+      type: 'inside',
+      orient: 'horizontal'
+    }
+  ],
   tooltip: {
     trigger: 'axis',
     triggerOn: 'click',
@@ -70,8 +79,8 @@ const DisabledDate = (time) => {
   return time.getTime() > Date.now()
 }
 
-onMounted(() => {
-  const TempCompareChart = echarts.init(document.getElementById('TempCompare1'), {
+onMounted(async () => {
+  const TempCompareChart = echarts.init(document.getElementById('TempCompare'), {
     useCoarsePointer: true
   })
   packtempStore.HistoryTemperatureChart = TempCompareChart
@@ -79,6 +88,28 @@ onMounted(() => {
   window.addEventListener('resize', function () {
     TempCompareChart.resize()
   })
+
+  await packtempStore.setTemperatureLineData(TodayDateFormate())
+  const optionsother = {
+    series: FormartHistoryTemperature(packtempStore.TemperatureLineData),
+    xAxis: {
+      data: packtempStore.xAxisData
+    }
+  }
+  packtempStore.HistoryTemperatureChart.setOption(optionsother)
+})
+
+const { bmuId } = storeToRefs(packtempStore)
+
+watch(bmuId, async () => {
+  await packtempStore.setTemperatureLineData(TodayDateFormate())
+  const optionsother = {
+    series: FormartHistoryTemperature(packtempStore.TemperatureLineData),
+    xAxis: {
+      data: packtempStore.xAxisData
+    }
+  }
+  packtempStore.HistoryTemperatureChart.setOption(optionsother)
 })
 
 const SelectDate = ref(TodayDateFormate())
@@ -88,22 +119,38 @@ const UpdateDate = (selDate) => {
 }
 
 // 定时更新当天的数据（返回当前的定时器ID）
-const TemperatureUpdateTimer = setInterval(
-  async (date) => {
+let TemperatureUpdateTimer = setInterval(
+  async function callback(date) {
     if (date === TodayDateFormate()) {
-      await packtempStore.setTemperatureLineData(date)
-      const options = {
-        series: FormartHistoryTemperature(packtempStore.TemperatureLineData),
-        xAxis: {
-          data: packtempStore.xAxisData
+      const res = await packtempStore.setTemperatureLineData(date)
+      if (res === true) {
+        const options = {
+          series: FormartHistoryTemperature(packtempStore.TemperatureLineData),
+          xAxis: {
+            data: packtempStore.xAxisData
+          }
         }
-      }
-      if (packtempStore.HistoryTemperatureChart !== null) {
-        packtempStore.HistoryTemperatureChart.setOption(options)
+        if (packtempStore.HistoryTemperatureChart !== null) {
+          packtempStore.HistoryTemperatureChart.setOption(options)
+        }
+      } else {
+        const retryresult = await RetryFun1(
+          packtempStore.setTemperatureLineData,
+          1000,
+          3,
+          TemperatureUpdateTimer,
+          date
+        )
+        if (retryresult === null) {
+          ElMessage.error('获取温度数据失败,请刷新页面')
+        } else {
+          ElMessage.success('温度数据恢复成功')
+          TemperatureUpdateTimer = setInterval(callback, 1000 * 60 * 3, SelectDate.value)
+        }
       }
     }
   },
-  1000,
+  1000 * 60 * 3,
   SelectDate.value
 )
 
@@ -145,8 +192,8 @@ const TimerID = ref(TemperatureUpdateTimer)
 watch(SelectDate, async (newVal) => {
   const SelTime = SelectDateFormate(newVal)
   clearInterval(TimerID.value)
-  TimerID.value = setInterval(async () => {
-    await packtempStore.setTemperatureLineData(SelTime)
+  const res = await packtempStore.setTemperatureLineData(SelTime)
+  if (res === true) {
     const options = {
       series: FormartHistoryTemperature(packtempStore.TemperatureLineData),
       xAxis: {
@@ -156,10 +203,53 @@ watch(SelectDate, async (newVal) => {
     if (packtempStore.HistoryTemperatureChart !== null) {
       packtempStore.HistoryTemperatureChart.setOption(options)
     }
-  }, 1000)
+  } else {
+    const retryresult = await RetryFun1(
+      packtempStore.setTemperatureLineData,
+      1000,
+      3,
+      TimerID.value,
+      SelTime
+    )
+    if (retryresult === null) {
+      ElMessage.error('获取温度数据失败,请刷新页面')
+    } else {
+      ElMessage.success('温度数据恢复成功')
+    }
+  }
+  TimerID.value = setInterval(
+    async function callback() {
+      const res = await packtempStore.setTemperatureLineData(SelTime)
+      if (res === true) {
+        const options = {
+          series: FormartHistoryTemperature(packtempStore.TemperatureLineData),
+          xAxis: {
+            data: packtempStore.xAxisData
+          }
+        }
+        if (packtempStore.HistoryTemperatureChart !== null) {
+          packtempStore.HistoryTemperatureChart.setOption(options)
+        }
+      } else {
+        const retryresult = await RetryFun1(
+          packtempStore.setTemperatureLineData,
+          1000,
+          3,
+          TimerID.value,
+          SelTime
+        )
+        if (retryresult === null) {
+          ElMessage.error('获取温度数据失败,请刷新页面')
+        } else {
+          ElMessage.success('温度数据恢复成功')
+          TimerID.value = setInterval(callback, 1000 * 60 * 3)
+        }
+      }
+    },
+    1000 * 60 * 3
+  )
 })
 </script>
-
 <template>
   <div class="historytemperaturecontainer">
     <div class="timeselect">

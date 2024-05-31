@@ -1,11 +1,41 @@
 <script setup>
 import { usePackTemperatureStore } from '@/stores/modules/packtemperature'
 import { storeToRefs } from 'pinia'
+import { RetryFun } from '@/utils/retry'
+import { ElMessage } from 'element-plus'
+import { watch } from 'vue'
 const packtempStore = usePackTemperatureStore()
 const { TemperatureTable } = storeToRefs(packtempStore)
-packtempStore.SystemTemperatureTimerId = setInterval(async () => {
-  await packtempStore.setTemperatureData()
-}, 1000)
+
+packtempStore.setTemperatureData().then()
+
+const { bmuId } = storeToRefs(packtempStore)
+
+watch(bmuId, () => {
+  packtempStore.setTemperatureData().then()
+})
+
+packtempStore.SystemTemperatureTimerId = setInterval(
+  async function callback() {
+    try {
+      await packtempStore.setTemperatureData()
+    } catch (error) {
+      const retryresult = await RetryFun(
+        packtempStore.setTemperatureData,
+        1000,
+        3,
+        packtempStore.SystemTemperatureTimerId
+      )
+      if (retryresult === null) {
+        ElMessage.error('请求失败,请刷新')
+      } else {
+        ElMessage.success('恢复成功')
+        packtempStore.SystemTemperatureTimerId = setInterval(callback, 1000 * 60 * 3)
+      }
+    }
+  },
+  1000 * 60 * 3
+)
 </script>
 
 <template>

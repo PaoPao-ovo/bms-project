@@ -6,6 +6,8 @@ import { usePackTemperatureStore } from '@/stores/modules/packtemperature'
 import { FormartHistoryTemperature } from '@/utils/defaultdata'
 import { RetryFun1 } from '@/utils/retry'
 import { ElMessage } from 'element-plus'
+import { storeToRefs } from 'pinia'
+
 const packtempStore = usePackTemperatureStore()
 
 // 图表默认属性
@@ -97,12 +99,24 @@ onMounted(async () => {
   packtempStore.HistoryTemperatureChart.setOption(optionsother)
 })
 
+const { bmuId } = storeToRefs(packtempStore)
+
+watch(bmuId, async () => {
+  await packtempStore.setTemperatureLineData(TodayDateFormate())
+  const optionsother = {
+    series: FormartHistoryTemperature(packtempStore.TemperatureLineData),
+    xAxis: {
+      data: packtempStore.xAxisData
+    }
+  }
+  packtempStore.HistoryTemperatureChart.setOption(optionsother)
+})
+
 const SelectDate = ref(TodayDateFormate())
 
 const UpdateDate = (selDate) => {
   SelectDate.value = selDate
 }
-
 
 // 定时更新当天的数据（返回当前的定时器ID）
 let TemperatureUpdateTimer = setInterval(
@@ -135,8 +149,7 @@ let TemperatureUpdateTimer = setInterval(
         }
       }
     }
-  }
-  ,
+  },
   1000 * 60 * 3,
   SelectDate.value
 )
@@ -179,42 +192,76 @@ const TimerID = ref(TemperatureUpdateTimer)
 watch(SelectDate, async (newVal) => {
   const SelTime = SelectDateFormate(newVal)
   clearInterval(TimerID.value)
-  TimerID.value = setInterval(async function callback() {
-    const res = await packtempStore.setTemperatureLineData(SelTime)
-    if (res === true) {
-      const options = {
-        series: FormartHistoryTemperature(packtempStore.TemperatureLineData),
-        xAxis: {
-          data: packtempStore.xAxisData
-        }
-      }
-      if (packtempStore.HistoryTemperatureChart !== null) {
-        packtempStore.HistoryTemperatureChart.setOption(options)
-      }
-    } else {
-      const retryresult = await RetryFun1(
-        packtempStore.setTemperatureLineData,
-        1000,
-        3,
-        TimerID.value,
-        SelTime
-      )
-      if (retryresult === null) {
-        ElMessage.error('获取温度数据失败,请刷新页面')
-      } else {
-        ElMessage.success('温度数据恢复成功')
-        TimerID.value = setInterval(callback, 1000 * 60 * 3)
+  const res = await packtempStore.setTemperatureLineData(SelTime)
+  if (res === true) {
+    const options = {
+      series: FormartHistoryTemperature(packtempStore.TemperatureLineData),
+      xAxis: {
+        data: packtempStore.xAxisData
       }
     }
-
-  }, 1000 * 60 * 3)
+    if (packtempStore.HistoryTemperatureChart !== null) {
+      packtempStore.HistoryTemperatureChart.setOption(options)
+    }
+  } else {
+    const retryresult = await RetryFun1(
+      packtempStore.setTemperatureLineData,
+      1000,
+      3,
+      TimerID.value,
+      SelTime
+    )
+    if (retryresult === null) {
+      ElMessage.error('获取温度数据失败,请刷新页面')
+    } else {
+      ElMessage.success('温度数据恢复成功')
+    }
+  }
+  TimerID.value = setInterval(
+    async function callback() {
+      const res = await packtempStore.setTemperatureLineData(SelTime)
+      if (res === true) {
+        const options = {
+          series: FormartHistoryTemperature(packtempStore.TemperatureLineData),
+          xAxis: {
+            data: packtempStore.xAxisData
+          }
+        }
+        if (packtempStore.HistoryTemperatureChart !== null) {
+          packtempStore.HistoryTemperatureChart.setOption(options)
+        }
+      } else {
+        const retryresult = await RetryFun1(
+          packtempStore.setTemperatureLineData,
+          1000,
+          3,
+          TimerID.value,
+          SelTime
+        )
+        if (retryresult === null) {
+          ElMessage.error('获取温度数据失败,请刷新页面')
+        } else {
+          ElMessage.success('温度数据恢复成功')
+          TimerID.value = setInterval(callback, 1000 * 60 * 3)
+        }
+      }
+    },
+    1000 * 60 * 3
+  )
 })
 </script>
 
 <template>
   <div class="timeselect">
-    <el-date-picker v-model="SelectDate" @change="UpdateDate" class="timeselect" style="width: 1.5rem; height: 0.3rem"
-      type="date" :disabled-date="DisabledDate" placeholder="选择日期" />
+    <el-date-picker
+      v-model="SelectDate"
+      @change="UpdateDate"
+      class="timeselect"
+      style="width: 1.5rem; height: 0.3rem"
+      type="date"
+      :disabled-date="DisabledDate"
+      placeholder="选择日期"
+    />
   </div>
   <h2>温度变化曲线</h2>
   <div class="chart" id="TempCompare"></div>

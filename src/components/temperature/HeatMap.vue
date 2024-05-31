@@ -1,11 +1,13 @@
 <script setup>
 import * as echarts from 'echarts'
-import { onMounted, onBeforeUnmount } from 'vue'
+import { onMounted, onBeforeUnmount, watch } from 'vue'
 import { usePackTemperatureStore } from '@/stores/modules/packtemperature'
 import { TempGetService } from '@/api/bmu'
 import { UpdateHeatMapChart } from '@/utils/defaultdata'
 import { RetryFun1 } from '@/utils/retry'
 import { ElMessage } from 'element-plus'
+import { storeToRefs } from 'pinia'
+
 // 电池包模块
 const packtempStore = usePackTemperatureStore()
 
@@ -100,28 +102,39 @@ onMounted(async () => {
   UpdateHeatMapChart(data, packtempStore.HeatMapChart)
 })
 
+const { bmuId } = storeToRefs(packtempStore)
+
+watch(bmuId, async () => {
+  const res = await TempGetService(packtempStore.bmuId)
+  const data = res.data.temperature
+  UpdateHeatMapChart(data, packtempStore.HeatMapChart)
+})
+
 // 定时更新初始化
-packtempStore.HeatMapTimerId = setInterval(async function callback() {
-  try {
-    const res = await TempGetService(packtempStore.bmuId)
-    const data = res.data.temperature
-    UpdateHeatMapChart(data, packtempStore.HeatMapChart)
-  } catch (error) {
-    const retryresult = await RetryFun1(
-      TempGetService,
-      1000,
-      3,
-      packtempStore.HeatMapTimerId,
-      packtempStore.bmuId
-    )
-    if (retryresult === null) {
-      ElMessage.error('获取温度数据失败,请刷新页面')
-    } else {
-      ElMessage.success('温度数据恢复成功')
-      packtempStore.HeatMapTimerId = setInterval(callback, 1000 * 60 * 3)
+packtempStore.HeatMapTimerId = setInterval(
+  async function callback() {
+    try {
+      const res = await TempGetService(packtempStore.bmuId)
+      const data = res.data.temperature
+      UpdateHeatMapChart(data, packtempStore.HeatMapChart)
+    } catch (error) {
+      const retryresult = await RetryFun1(
+        TempGetService,
+        1000,
+        3,
+        packtempStore.HeatMapTimerId,
+        packtempStore.bmuId
+      )
+      if (retryresult === null) {
+        ElMessage.error('获取温度数据失败,请刷新页面')
+      } else {
+        ElMessage.success('温度数据恢复成功')
+        packtempStore.HeatMapTimerId = setInterval(callback, 1000 * 60 * 3)
+      }
     }
-  }
-}, 1000 * 60 * 3)
+  },
+  1000 * 60 * 3
+)
 
 // 组件销毁时清除定时器
 onBeforeUnmount(() => {

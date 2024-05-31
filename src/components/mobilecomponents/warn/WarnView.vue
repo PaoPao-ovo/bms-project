@@ -1,17 +1,53 @@
 <script setup>
 import { Vue3SeamlessScroll } from 'vue3-seamless-scroll'
 import { usePackVoltageStore } from '@/stores/modules/packvoltage'
-
+import { ElMessage } from 'element-plus'
 import { ref, watch } from 'vue'
+import { storeToRefs } from 'pinia'
 
 const packStore = usePackVoltageStore()
 
-setInterval(async () => {
-  await packStore.setPackWarnList()
-}, 5000)
+packStore.setPackWarnList().then()
+
+const { bmuId } = storeToRefs(packStore)
+
+watch(bmuId, () => {
+  packStore.setPackWarnList().then()
+})
+
+let Timer = setInterval(
+  async function callback() {
+    const res = await packStore.setPackWarnList()
+    if (res === null) {
+      clearInterval(Timer)
+      let MaxAttempts = 3
+      const retryPromise = new Promise((resolve) => {
+        const retryTimer = setInterval(async () => {
+          const res = await packStore.setPackWarnList()
+          MaxAttempts--
+          if (MaxAttempts === 0) {
+            clearInterval(retryTimer)
+            resolve(false)
+          } else if (res !== null) {
+            clearInterval(retryTimer)
+            resolve(true)
+          }
+        }, 1000)
+      })
+      const retryResult = await retryPromise
+      if (retryResult) {
+        ElMessage.success('报警数据恢复成功')
+        Timer = setInterval(callback, 1000 * 60 * 3)
+      } else {
+        ElMessage.error('报警数据获取数据失败，请刷新页面')
+      }
+    }
+  },
+  1000 * 60 * 3
+)
 
 // 默认展示的页面
-const activeName = ref('first')
+const activeName = ref('second')
 
 const Login = async (param) => {
   await packStore.setAlarmParams(param)
@@ -29,7 +65,6 @@ watch(activeName, async (newVal) => {
   }
 })
 </script>
-
 <template>
   <div>
     <el-tabs v-model="activeName">

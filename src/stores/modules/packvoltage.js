@@ -36,6 +36,7 @@ export const usePackVoltageStore = defineStore('packvoltage', () => {
     } catch (error) {
       // packVoltage.value = []
       // packVoltageX.value = []
+      return null
     }
   }
 
@@ -54,6 +55,7 @@ export const usePackVoltageStore = defineStore('packvoltage', () => {
     } catch (error) {
       // clusterVoltage.value = []
       // clusterVoltageX.value = []
+      return null
     }
   }
 
@@ -66,6 +68,7 @@ export const usePackVoltageStore = defineStore('packvoltage', () => {
       const res = await AlarmGetService(bmuId.value)
       packWarnList.value = res.data.alarm
     } catch (error) {
+      return null
       // packWarnList.value = []
     }
   }

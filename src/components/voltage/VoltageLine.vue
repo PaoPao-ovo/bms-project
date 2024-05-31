@@ -4,6 +4,8 @@ import * as echarts from 'echarts'
 import { usePackVoltageStore } from '@/stores/modules/packvoltage'
 import { TodayDateFormate, SelectDateFormate } from '@/utils/daytime'
 import { FormartHistoryVoltage } from '@/utils/defaultdata'
+import { ElMessage } from 'element-plus'
+import { storeToRefs } from 'pinia'
 
 const packvoltageStore = usePackVoltageStore()
 
@@ -70,6 +72,58 @@ const DisabledDate = (time) => {
   return time.getTime() > Date.now()
 }
 
+// 更新图表属性
+const ChartOptionUpdate = async () => {
+  if (ModeRef.value === '5') {
+    const res = await packvoltageStore.setPackVoltage(SelectDateFormate(DateRef.value))
+    if (res === null) {
+      return false
+    } else {
+      if (packvoltageStore.packVoltageChart !== null) {
+        const options = {
+          xAxis: [
+            {
+              data: packvoltageStore.packVoltageX
+            }
+          ],
+          series: [
+            {
+              name: '电压',
+              type: 'line',
+              data: packvoltageStore.packVoltage.map((item) => item / 1000)
+            }
+          ]
+        }
+        packvoltageStore.packVoltageChart.setOption(options, {
+          replaceMerge: ['series']
+        })
+      }
+    }
+  } else {
+    const res = await packvoltageStore.setClusterVoltage(
+      +ModeRef.value,
+      SelectDateFormate(DateRef.value)
+    )
+    if (res === null) {
+      return false
+    } else {
+      if (packvoltageStore.packVoltageChart !== null) {
+        const options = {
+          xAxis: [
+            {
+              data: packvoltageStore.clusterVoltageX
+            }
+          ],
+          series: FormartHistoryVoltage(packvoltageStore.clusterVoltage)
+        }
+        packvoltageStore.packVoltageChart.setOption(options, {
+          replaceMerge: ['series']
+        })
+      }
+    }
+  }
+}
+
 onMounted(() => {
   const VoltagesCompareChart = echarts.init(document.getElementById('VoltagesCompare'), {
     useCoarsePointer: true
@@ -78,6 +132,17 @@ onMounted(() => {
   VoltagesCompareChart.setOption(options)
   window.addEventListener('resize', function () {
     VoltagesCompareChart.resize()
+  })
+  ChartOptionUpdate().catch(() => {
+    ElMessage.error('单包电压数据初始化失败')
+  })
+})
+
+const { bmuId } = storeToRefs(packvoltageStore)
+
+watch(bmuId, () => {
+  ChartOptionUpdate().catch(() => {
+    ElMessage.error('单包电压数据初始化失败')
   })
 })
 
@@ -96,51 +161,40 @@ const ChangeMode = (val) => {
   ModeRef.value = val
 }
 
-// 更新图表属性
-const ChartOptionUpdate = async () => {
-  if (ModeRef.value === '5') {
-    await packvoltageStore.setPackVoltage(SelectDateFormate(DateRef.value))
-    if (packvoltageStore.packVoltageChart !== null) {
-      const options = {
-        xAxis: [
-          {
-            data: packvoltageStore.packVoltageX
-          }
-        ],
-        series: [
-          {
-            name: '电压',
-            type: 'line',
-            data: packvoltageStore.packVoltage.map((item) => item / 1000)
-          }
-        ]
-      }
-      packvoltageStore.packVoltageChart.setOption(options, {
-        replaceMerge: ['series']
-      })
-    }
-  } else {
-    await packvoltageStore.setClusterVoltage(+ModeRef.value, SelectDateFormate(DateRef.value))
-    if (packvoltageStore.packVoltageChart !== null) {
-      const options = {
-        xAxis: [
-          {
-            data: packvoltageStore.clusterVoltageX
-          }
-        ],
-        series: FormartHistoryVoltage(packvoltageStore.clusterVoltage)
-      }
-      packvoltageStore.packVoltageChart.setOption(options, {
-        replaceMerge: ['series']
-      })
-    }
-  }
-}
-
 // 默认更新当日单包数据（定时器）
-const VoltageTimer = setInterval(() => {
-  ChartOptionUpdate()
-}, 1000)
+let VoltageTimer = setInterval(
+  async function callback() {
+    const res = await ChartOptionUpdate()
+    if (res === false) {
+      clearInterval(VoltageTimer)
+      let MaxAttempts = 3
+      const retryResult = new Promise(function (resolve) {
+        const retryTimer = setInterval(async function callback() {
+          const res = await ChartOptionUpdate()
+          MaxAttempts--
+          if (res !== false) {
+            clearInterval(retryTimer)
+            resolve(true)
+          }
+
+          if (MaxAttempts === 0) {
+            clearInterval(retryTimer)
+            resolve(false)
+          }
+        }, 1000)
+      })
+
+      const retryResultRes = await retryResult
+      if (retryResultRes === false) {
+        ElMessage.error('单包电压数据获取失败')
+      } else {
+        ElMessage.success('单包电压数据恢复成功')
+        VoltageTimer = setInterval(callback, 1000 * 60 * 3)
+      }
+    }
+  },
+  1000 * 60 * 3
+)
 
 // 定时器ID
 const TimerId = ref(VoltageTimer)
@@ -158,11 +212,66 @@ const TimerId = ref(VoltageTimer)
 //   }
 // })
 
-watch(DateRef, () => {
+watch(DateRef, async () => {
   clearInterval(TimerId.value)
-  TimerId.value = setInterval(() => {
-    ChartOptionUpdate()
-  }, 1000)
+  const res = await ChartOptionUpdate()
+  if (res === false) {
+    let MaxAttempts = 3
+    const retryResult = new Promise(function (resolve) {
+      const retryTimer = setInterval(async function callback() {
+        const res = await ChartOptionUpdate()
+        MaxAttempts--
+        if (res !== false) {
+          clearInterval(retryTimer)
+          resolve(true)
+        }
+
+        if (MaxAttempts === 0) {
+          clearInterval(retryTimer)
+          resolve(false)
+        }
+      }, 1000)
+    })
+
+    const retryResultRes = await retryResult
+    if (retryResultRes === false) {
+      ElMessage.error('单包电压数据获取失败')
+    } else {
+      ElMessage.success('单包电压数据恢复成功')
+    }
+  }
+  TimerId.value = setInterval(
+    async function callback() {
+      const res = await ChartOptionUpdate()
+      if (res === false) {
+        let MaxAttempts = 3
+        const retryResult = new Promise(function (resolve) {
+          const retryTimer = setInterval(async function callback() {
+            const res = await ChartOptionUpdate()
+            MaxAttempts--
+            if (res !== false) {
+              clearInterval(retryTimer)
+              resolve(true)
+            }
+
+            if (MaxAttempts === 0) {
+              clearInterval(retryTimer)
+              resolve(false)
+            }
+          }, 1000)
+        })
+
+        const retryResultRes = await retryResult
+        if (retryResultRes === false) {
+          ElMessage.error('单包电压数据获取失败')
+        } else {
+          ElMessage.success('单包电压数据恢复成功')
+          TimerId.value = setInterval(callback, 1000 * 60 * 3)
+        }
+      }
+    },
+    1000 * 60 * 3
+  )
 })
 
 // 电池包类型变化,更新图表并调整定时器
@@ -171,9 +280,39 @@ watch(ModeRef, () => {
     ChartOptionUpdate()
   } else {
     clearInterval(TimerId.value)
-    TimerId.value = setInterval(() => {
-      ChartOptionUpdate()
-    }, 1000)
+    ChartOptionUpdate().then()
+    TimerId.value = setInterval(
+      async function callback() {
+        const res = await ChartOptionUpdate()
+        if (res === false) {
+          let MaxAttempts = 3
+          const retryResult = new Promise(function (resolve) {
+            const retryTimer = setInterval(async function callback() {
+              const res = await ChartOptionUpdate()
+              MaxAttempts--
+              if (res !== false) {
+                clearInterval(retryTimer)
+                resolve(true)
+              }
+
+              if (MaxAttempts === 0) {
+                clearInterval(retryTimer)
+                resolve(false)
+              }
+            }, 1000)
+          })
+
+          const retryResultRes = await retryResult
+          if (retryResultRes === false) {
+            ElMessage.error('单包电压数据获取失败')
+          } else {
+            ElMessage.success('单包电压数据恢复成功')
+            TimerId.value = setInterval(callback, 1000 * 60 * 3)
+          }
+        }
+      },
+      1000 * 60 * 3
+    )
   }
 })
 </script>
