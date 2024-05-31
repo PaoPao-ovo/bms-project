@@ -1,15 +1,17 @@
 <script setup>
 import { xAxisData } from '@/utils/defaultdata'
 import * as echarts from 'echarts'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { TempGetService } from '@/api/bmu'
 import { usePackTemperatureStore } from '@/stores/modules/packtemperature'
 import { storeToRefs } from 'pinia'
 import { UpdateHeatMapChart, UpdateSystemChart, toFixed } from '@/utils/defaultdata'
 import { RetryFun1, RetryFun } from '@/utils/retry'
 import { ElMessage } from 'element-plus'
+
 // 温度数据仓库
 const packTemperatureStore = usePackTemperatureStore()
+
 
 // 表格的属性
 const option = {
@@ -106,6 +108,14 @@ onMounted(async () => {
   const data = res.data.temperature
   UpdateChart(data)
 })
+
+const { bmuId } = storeToRefs(packTemperatureStore)
+watch(bmuId, async () => {
+  const res = await TempGetService(packTemperatureStore.bmuId)
+  const data = res.data.temperature
+  UpdateChart(data)
+})
+
 
 // 定时更新初始化
 let Timer = setInterval(

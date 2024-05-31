@@ -5,6 +5,8 @@ import { usePackVoltageStore } from '@/stores/modules/packvoltage'
 import { TodayDateFormate, SelectDateFormate } from '@/utils/daytime'
 import { FormartHistoryVoltage } from '@/utils/defaultdata'
 import { ElMessage } from 'element-plus'
+import { storeToRefs } from 'pinia'
+
 const packvoltageStore = usePackVoltageStore()
 
 const options = {
@@ -121,7 +123,7 @@ const ChartOptionUpdate = async () => {
 }
 
 onMounted(() => {
-  const VoltagesCompareChart = echarts.init(document.getElementById('VoltagesCompare1'), {
+  const VoltagesCompareChart = echarts.init(document.getElementById('VoltagesCompare'), {
     useCoarsePointer: true
   })
   packvoltageStore.packVoltageChart = VoltagesCompareChart
@@ -129,6 +131,15 @@ onMounted(() => {
   window.addEventListener('resize', function () {
     VoltagesCompareChart.resize()
   })
+  ChartOptionUpdate().catch
+    (() => {
+      ElMessage.error('单包电压数据初始化失败')
+    })
+})
+
+const { bmuId } = storeToRefs(packvoltageStore)
+
+watch(bmuId, () => {
   ChartOptionUpdate().catch
     (() => {
       ElMessage.error('单包电压数据初始化失败')
@@ -300,6 +311,7 @@ watch(ModeRef, () => {
   }
 })
 </script>
+
 
 <template>
   <div class="voltagelinecontainner">

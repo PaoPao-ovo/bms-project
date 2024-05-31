@@ -3,10 +3,17 @@ import { Vue3SeamlessScroll } from 'vue3-seamless-scroll'
 import { usePackVoltageStore } from '@/stores/modules/packvoltage'
 import { ElMessage } from 'element-plus'
 import { ref, watch } from 'vue'
+import { storeToRefs } from 'pinia'
 
 const packStore = usePackVoltageStore()
 
 packStore.setPackWarnList().then()
+
+const { bmuId } = storeToRefs(packStore)
+
+watch(bmuId, () => {
+  packStore.setPackWarnList().then()
+})
 
 let Timer = setInterval(async function callback() {
   const res = await packStore.setPackWarnList()
@@ -55,7 +62,6 @@ watch(activeName, async (newVal) => {
   }
 })
 </script>
-
 <template>
   <div>
     <el-tabs v-model="activeName">
@@ -106,7 +112,7 @@ watch(activeName, async (newVal) => {
                 <el-col :span="2" :offset="20">
                   <el-button :loading="Uploading" @click="Login(packStore.alarmParams)">{{
                     '提交'
-                    }}</el-button>
+                  }}</el-button>
                 </el-col>
               </el-row>
             </el-form></el-scrollbar>

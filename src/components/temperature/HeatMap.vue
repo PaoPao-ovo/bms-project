@@ -1,11 +1,13 @@
 <script setup>
 import * as echarts from 'echarts'
-import { onMounted, onBeforeUnmount } from 'vue'
+import { onMounted, onBeforeUnmount, watch } from 'vue'
 import { usePackTemperatureStore } from '@/stores/modules/packtemperature'
 import { TempGetService } from '@/api/bmu'
 import { UpdateHeatMapChart } from '@/utils/defaultdata'
 import { RetryFun1 } from '@/utils/retry'
 import { ElMessage } from 'element-plus'
+import { storeToRefs } from 'pinia'
+
 // 电池包模块
 const packtempStore = usePackTemperatureStore()
 
@@ -95,6 +97,14 @@ onMounted(async () => {
     HeatMap.resize()
   })
 
+  const res = await TempGetService(packtempStore.bmuId)
+  const data = res.data.temperature
+  UpdateHeatMapChart(data, packtempStore.HeatMapChart)
+})
+
+const { bmuId } = storeToRefs(packtempStore)
+
+watch(bmuId, async () => {
   const res = await TempGetService(packtempStore.bmuId)
   const data = res.data.temperature
   UpdateHeatMapChart(data, packtempStore.HeatMapChart)

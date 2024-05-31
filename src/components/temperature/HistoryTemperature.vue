@@ -6,6 +6,8 @@ import { usePackTemperatureStore } from '@/stores/modules/packtemperature'
 import { FormartHistoryTemperature } from '@/utils/defaultdata'
 import { RetryFun1 } from '@/utils/retry'
 import { ElMessage } from 'element-plus'
+import { storeToRefs } from 'pinia'
+
 const packtempStore = usePackTemperatureStore()
 
 // 图表默认属性
@@ -87,6 +89,19 @@ onMounted(async () => {
     TempCompareChart.resize()
   })
 
+  await packtempStore.setTemperatureLineData(TodayDateFormate())
+  const optionsother = {
+    series: FormartHistoryTemperature(packtempStore.TemperatureLineData),
+    xAxis: {
+      data: packtempStore.xAxisData
+    }
+  }
+  packtempStore.HistoryTemperatureChart.setOption(optionsother)
+})
+
+const { bmuId } = storeToRefs(packtempStore)
+
+watch(bmuId, async () => {
   await packtempStore.setTemperatureLineData(TodayDateFormate())
   const optionsother = {
     series: FormartHistoryTemperature(packtempStore.TemperatureLineData),

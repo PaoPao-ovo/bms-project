@@ -3,10 +3,17 @@ import { Vue3SeamlessScroll } from 'vue3-seamless-scroll'
 import { usePackVoltageStore } from '@/stores/modules/packvoltage'
 import { ElMessage } from 'element-plus'
 import { ref, watch } from 'vue'
+import { storeToRefs } from 'pinia'
 
 const packStore = usePackVoltageStore()
 
 packStore.setPackWarnList().then()
+
+const { bmuId } = storeToRefs(packStore)
+
+watch(bmuId, () => {
+  packStore.setPackWarnList().then()
+})
 
 let Timer = setInterval(async function callback() {
   const res = await packStore.setPackWarnList()

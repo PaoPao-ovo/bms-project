@@ -3,11 +3,17 @@ import { usePackTemperatureStore } from '@/stores/modules/packtemperature'
 import { storeToRefs } from 'pinia'
 import { RetryFun } from '@/utils/retry'
 import { ElMessage } from 'element-plus'
-
+import { watch } from 'vue'
 const packtempStore = usePackTemperatureStore()
 const { TemperatureTable } = storeToRefs(packtempStore)
 
 packtempStore.setTemperatureData().then()
+
+const { bmuId } = storeToRefs(packtempStore)
+
+watch(bmuId, () => {
+  packtempStore.setTemperatureData().then()
+})
 
 packtempStore.SystemTemperatureTimerId = setInterval(async function callback() {
   try {
@@ -23,6 +29,7 @@ packtempStore.SystemTemperatureTimerId = setInterval(async function callback() {
   }
 }, 1000 * 60 * 3)
 </script>
+
 
 <template>
   <h2>温度数据展示</h2>

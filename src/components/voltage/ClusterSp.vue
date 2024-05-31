@@ -1,7 +1,7 @@
 <script setup>
 import { usePackVoltageStore } from '@/stores/modules/packvoltage'
 import { xAxisData } from '@/utils/defaultdata'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import * as echarts from 'echarts'
 import { ElMessage } from 'element-plus'
@@ -130,7 +130,7 @@ const UpdateChart = async () => {
     }
   }
 }
-onMounted(async () => {
+onMounted(() => {
   const ClusterVoltageSpChart = echarts.init(document.getElementById('ClusterVoltageSp'))
   Chart = ClusterVoltageSpChart
   ClusterVoltageSpChart.setOption(options)
@@ -140,7 +140,11 @@ onMounted(async () => {
   UpdateChart().then()
 })
 
+const { bmuId } = storeToRefs(clusterStore)
 
+watch(bmuId, () => {
+  UpdateChart().then()
+})
 
 // 电压更新定时器初始化
 let VoltageTimer = setInterval(async function callback() {
