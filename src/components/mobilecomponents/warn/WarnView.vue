@@ -15,33 +15,36 @@ watch(bmuId, () => {
   packStore.setPackWarnList().then()
 })
 
-let Timer = setInterval(async function callback() {
-  const res = await packStore.setPackWarnList()
-  if (res === null) {
-    clearInterval(Timer)
-    let MaxAttempts = 3
-    const retryPromise = new Promise((resolve) => {
-      const retryTimer = setInterval(async () => {
-        const res = await packStore.setPackWarnList()
-        MaxAttempts--
-        if (MaxAttempts === 0) {
-          clearInterval(retryTimer)
-          resolve(false)
-        } else if (res !== null) {
-          clearInterval(retryTimer)
-          resolve(true)
-        }
-      }, 1000)
-    })
-    const retryResult = await retryPromise
-    if (retryResult) {
-      ElMessage.success('报警数据恢复成功')
-      Timer = setInterval(callback, 1000 * 60 * 3)
-    } else {
-      ElMessage.error('报警数据获取数据失败，请刷新页面')
+let Timer = setInterval(
+  async function callback() {
+    const res = await packStore.setPackWarnList()
+    if (res === null) {
+      clearInterval(Timer)
+      let MaxAttempts = 3
+      const retryPromise = new Promise((resolve) => {
+        const retryTimer = setInterval(async () => {
+          const res = await packStore.setPackWarnList()
+          MaxAttempts--
+          if (MaxAttempts === 0) {
+            clearInterval(retryTimer)
+            resolve(false)
+          } else if (res !== null) {
+            clearInterval(retryTimer)
+            resolve(true)
+          }
+        }, 1000)
+      })
+      const retryResult = await retryPromise
+      if (retryResult) {
+        ElMessage.success('报警数据恢复成功')
+        Timer = setInterval(callback, 1000 * 60 * 3)
+      } else {
+        ElMessage.error('报警数据获取数据失败，请刷新页面')
+      }
     }
-  }
-}, 1000 * 60 * 3)
+  },
+  1000 * 60 * 3
+)
 
 // 默认展示的页面
 const activeName = ref('second')
@@ -67,8 +70,13 @@ watch(activeName, async (newVal) => {
     <el-tabs v-model="activeName">
       <el-tab-pane label="报警信息" name="first">
         <div class="chart">
-          <vue3-seamless-scroll :list="packStore.packWarnList" class="scroll" :step="0.2" :hover="true"
-            :limitScrollNum="8">
+          <vue3-seamless-scroll
+            :list="packStore.packWarnList"
+            class="scroll"
+            :step="0.2"
+            :hover="true"
+            :limitScrollNum="8"
+          >
             <div class="item" v-for="(item, index) in packStore.packWarnList" :key="index">
               <span v-show="item.level != ''">{{ item.updatetime }}</span>
               <span v-show="item.level != ''">{{ item.level }}</span>
@@ -79,14 +87,20 @@ watch(activeName, async (newVal) => {
       </el-tab-pane>
       <el-tab-pane label="报警参数设置" name="second">
         <div class="chart">
-          <el-scrollbar><el-form :model="packStore.alarmParams">
-              <el-table class="setchart" :data="packStore.alarmParams" :cell-style="{ 'text-align': 'center' }"
-                :show-header="false" style="
+          <el-scrollbar
+            ><el-form :model="packStore.alarmParams">
+              <el-table
+                class="setchart"
+                :data="packStore.alarmParams"
+                :cell-style="{ 'text-align': 'center' }"
+                :show-header="false"
+                style="
                   --el-table-border-color: none;
                   --el-table-bg-color: none;
                   --el-table-tr-bg-color: none;
                   --el-table-header-bg-color: none;
-                ">
+                "
+              >
                 <el-table-column prop="type" label="">
                   <template #default="scope">
                     <span>{{ scope.row.type }}</span>
@@ -115,7 +129,8 @@ watch(activeName, async (newVal) => {
                   }}</el-button>
                 </el-col>
               </el-row>
-            </el-form></el-scrollbar>
+            </el-form></el-scrollbar
+          >
         </div>
       </el-tab-pane>
     </el-tabs>
@@ -142,7 +157,7 @@ watch(activeName, async (newVal) => {
   color: white;
 }
 
-.chart .setchart tr:hover>td {
+.chart .setchart tr:hover > td {
   background-color: #134d80 !important;
 }
 

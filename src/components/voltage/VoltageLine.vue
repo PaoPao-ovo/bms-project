@@ -99,9 +99,11 @@ const ChartOptionUpdate = async () => {
         })
       }
     }
-
   } else {
-    const res = await packvoltageStore.setClusterVoltage(+ModeRef.value, SelectDateFormate(DateRef.value))
+    const res = await packvoltageStore.setClusterVoltage(
+      +ModeRef.value,
+      SelectDateFormate(DateRef.value)
+    )
     if (res === null) {
       return false
     } else {
@@ -131,19 +133,17 @@ onMounted(() => {
   window.addEventListener('resize', function () {
     VoltagesCompareChart.resize()
   })
-  ChartOptionUpdate().catch
-    (() => {
-      ElMessage.error('单包电压数据初始化失败')
-    })
+  ChartOptionUpdate().catch(() => {
+    ElMessage.error('单包电压数据初始化失败')
+  })
 })
 
 const { bmuId } = storeToRefs(packvoltageStore)
 
 watch(bmuId, () => {
-  ChartOptionUpdate().catch
-    (() => {
-      ElMessage.error('单包电压数据初始化失败')
-    })
+  ChartOptionUpdate().catch(() => {
+    ElMessage.error('单包电压数据初始化失败')
+  })
 })
 
 // 选择日期
@@ -161,39 +161,40 @@ const ChangeMode = (val) => {
   ModeRef.value = val
 }
 
-
 // 默认更新当日单包数据（定时器）
-let VoltageTimer = setInterval(async function callback() {
-  const res = await ChartOptionUpdate()
-  if (res === false) {
-    clearInterval(VoltageTimer)
-    let MaxAttempts = 3
-    const retryResult = new Promise(function (resolve) {
-      const retryTimer = setInterval(async function callback() {
-        const res = await ChartOptionUpdate()
-        MaxAttempts--
-        if (res !== false) {
-          clearInterval(retryTimer)
-          resolve(true)
-        }
+let VoltageTimer = setInterval(
+  async function callback() {
+    const res = await ChartOptionUpdate()
+    if (res === false) {
+      clearInterval(VoltageTimer)
+      let MaxAttempts = 3
+      const retryResult = new Promise(function (resolve) {
+        const retryTimer = setInterval(async function callback() {
+          const res = await ChartOptionUpdate()
+          MaxAttempts--
+          if (res !== false) {
+            clearInterval(retryTimer)
+            resolve(true)
+          }
 
-        if (MaxAttempts === 0) {
-          clearInterval(retryTimer)
-          resolve(false)
-        }
-      }, 1000)
-    })
+          if (MaxAttempts === 0) {
+            clearInterval(retryTimer)
+            resolve(false)
+          }
+        }, 1000)
+      })
 
-    const retryResultRes = await retryResult
-    if (retryResultRes === false) {
-      ElMessage.error('单包电压数据获取失败')
-    } else {
-      ElMessage.success('单包电压数据恢复成功')
-      VoltageTimer = setInterval(callback, 1000 * 60 * 3)
+      const retryResultRes = await retryResult
+      if (retryResultRes === false) {
+        ElMessage.error('单包电压数据获取失败')
+      } else {
+        ElMessage.success('单包电压数据恢复成功')
+        VoltageTimer = setInterval(callback, 1000 * 60 * 3)
+      }
     }
-  }
-
-}, 1000 * 60 * 3)
+  },
+  1000 * 60 * 3
+)
 
 // 定时器ID
 const TimerId = ref(VoltageTimer)
@@ -239,46 +240,8 @@ watch(DateRef, async () => {
       ElMessage.success('单包电压数据恢复成功')
     }
   }
-  TimerId.value = setInterval(async function callback() {
-    const res = await ChartOptionUpdate()
-    if (res === false) {
-      let MaxAttempts = 3
-      const retryResult = new Promise(function (resolve) {
-        const retryTimer = setInterval(async function callback() {
-          const res = await ChartOptionUpdate()
-          MaxAttempts--
-          if (res !== false) {
-            clearInterval(retryTimer)
-            resolve(true)
-          }
-
-          if (MaxAttempts === 0) {
-            clearInterval(retryTimer)
-            resolve(false)
-          }
-        }, 1000)
-      })
-
-      const retryResultRes = await retryResult
-      if (retryResultRes === false) {
-        ElMessage.error('单包电压数据获取失败')
-      } else {
-        ElMessage.success('单包电压数据恢复成功')
-        TimerId.value = setInterval(callback, 1000 * 60 * 3)
-      }
-    }
-
-  }, 1000 * 60 * 3)
-})
-
-// 电池包类型变化,更新图表并调整定时器
-watch(ModeRef, () => {
-  if (SelectDateFormate(DateRef.value) !== TodayDateFormate()) {
-    ChartOptionUpdate()
-  } else {
-    clearInterval(TimerId.value)
-    ChartOptionUpdate().then()
-    TimerId.value = setInterval(async function callback() {
+  TimerId.value = setInterval(
+    async function callback() {
       const res = await ChartOptionUpdate()
       if (res === false) {
         let MaxAttempts = 3
@@ -306,8 +269,50 @@ watch(ModeRef, () => {
           TimerId.value = setInterval(callback, 1000 * 60 * 3)
         }
       }
+    },
+    1000 * 60 * 3
+  )
+})
 
-    }, 1000 * 60 * 3)
+// 电池包类型变化,更新图表并调整定时器
+watch(ModeRef, () => {
+  if (SelectDateFormate(DateRef.value) !== TodayDateFormate()) {
+    ChartOptionUpdate()
+  } else {
+    clearInterval(TimerId.value)
+    ChartOptionUpdate().then()
+    TimerId.value = setInterval(
+      async function callback() {
+        const res = await ChartOptionUpdate()
+        if (res === false) {
+          let MaxAttempts = 3
+          const retryResult = new Promise(function (resolve) {
+            const retryTimer = setInterval(async function callback() {
+              const res = await ChartOptionUpdate()
+              MaxAttempts--
+              if (res !== false) {
+                clearInterval(retryTimer)
+                resolve(true)
+              }
+
+              if (MaxAttempts === 0) {
+                clearInterval(retryTimer)
+                resolve(false)
+              }
+            }, 1000)
+          })
+
+          const retryResultRes = await retryResult
+          if (retryResultRes === false) {
+            ElMessage.error('单包电压数据获取失败')
+          } else {
+            ElMessage.success('单包电压数据恢复成功')
+            TimerId.value = setInterval(callback, 1000 * 60 * 3)
+          }
+        }
+      },
+      1000 * 60 * 3
+    )
   }
 })
 </script>
@@ -323,8 +328,15 @@ watch(ModeRef, () => {
     </el-radio-group>
   </div>
   <div class="timeselect">
-    <el-date-picker v-model="DateRef" @change="DateUpdate" class="timeselect" style="width: 1.5rem; height: 0.3rem"
-      type="date" :disabled-date="DisabledDate" placeholder="选择日期" />
+    <el-date-picker
+      v-model="DateRef"
+      @change="DateUpdate"
+      class="timeselect"
+      style="width: 1.5rem; height: 0.3rem"
+      type="date"
+      :disabled-date="DisabledDate"
+      placeholder="选择日期"
+    />
   </div>
   <h2>电压变化曲线</h2>
   <div class="chart" id="VoltagesCompare"></div>

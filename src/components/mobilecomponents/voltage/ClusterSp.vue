@@ -147,34 +147,36 @@ watch(bmuId, () => {
 })
 
 // 电压更新定时器初始化
-let VoltageTimer = setInterval(async function callback() {
-  const res = await UpdateChart()
-  if (res === false) {
-    clearInterval(VoltageTimer)
-    let MaxAttempts = 3
-    const retryResult = new Promise(function (resolve) {
-      const retryTimer = setInterval(async () => {
-        const res = await clusterStore.setClusterSp()
-        MaxAttempts--
-        if (res !== null) {
-          clearInterval(retryTimer)
-          resolve(true)
-        } else if (MaxAttempts === 0) {
-          clearInterval(retryTimer)
-          resolve(false)
-        }
-      }, 1000)
-    })
-    const retryResultRes = await retryResult
-    if (retryResultRes === false) {
-      ElMessage.error('簇级电压数据获取数据失败，请刷新页面')
-    } else {
-      ElMessage.success('温簇级电压数据恢复成功')
-      VoltageTimer = setInterval(callback, 1000 * 60 * 3)
+let VoltageTimer = setInterval(
+  async function callback() {
+    const res = await UpdateChart()
+    if (res === false) {
+      clearInterval(VoltageTimer)
+      let MaxAttempts = 3
+      const retryResult = new Promise(function (resolve) {
+        const retryTimer = setInterval(async () => {
+          const res = await clusterStore.setClusterSp()
+          MaxAttempts--
+          if (res !== null) {
+            clearInterval(retryTimer)
+            resolve(true)
+          } else if (MaxAttempts === 0) {
+            clearInterval(retryTimer)
+            resolve(false)
+          }
+        }, 1000)
+      })
+      const retryResultRes = await retryResult
+      if (retryResultRes === false) {
+        ElMessage.error('簇级电压数据获取数据失败，请刷新页面')
+      } else {
+        ElMessage.success('温簇级电压数据恢复成功')
+        VoltageTimer = setInterval(callback, 1000 * 60 * 3)
+      }
     }
-
-  }
-}, 1000 * 60 * 3)
+  },
+  1000 * 60 * 3
+)
 
 const TimerId = ref(VoltageTimer)
 
@@ -190,41 +192,42 @@ const ModeChange = (newVal) => {
   } else {
     if (TimerId.value === null) {
       UpdateChart().then()
-      TimerId.value = setInterval(async function callback() {
-        const res = await UpdateChart()
-        if (res === false) {
-          clearInterval(TimerId.value)
-          let MaxAttempts = 3
-          const retryResult = new Promise(function (resolve) {
-            const retryTimer = setInterval(async () => {
-              const res = await clusterStore.setClusterSp()
-              MaxAttempts--
-              if (res !== null) {
-                clearInterval(retryTimer)
-                resolve(true)
-              } else if (MaxAttempts === 0) {
-                clearInterval(retryTimer)
-                resolve(false)
-              }
-            }, 1000)
-          })
-          const retryResultRes = await retryResult
-          if (retryResultRes === false) {
-            ElMessage.error('簇级电压数据获取数据失败，请刷新页面')
-          } else {
-            ElMessage.success('温簇级电压数据恢复成功')
-            TimerId.value = setInterval(callback, 1000 * 60 * 3)
+      TimerId.value = setInterval(
+        async function callback() {
+          const res = await UpdateChart()
+          if (res === false) {
+            clearInterval(TimerId.value)
+            let MaxAttempts = 3
+            const retryResult = new Promise(function (resolve) {
+              const retryTimer = setInterval(async () => {
+                const res = await clusterStore.setClusterSp()
+                MaxAttempts--
+                if (res !== null) {
+                  clearInterval(retryTimer)
+                  resolve(true)
+                } else if (MaxAttempts === 0) {
+                  clearInterval(retryTimer)
+                  resolve(false)
+                }
+              }, 1000)
+            })
+            const retryResultRes = await retryResult
+            if (retryResultRes === false) {
+              ElMessage.error('簇级电压数据获取数据失败，请刷新页面')
+            } else {
+              ElMessage.success('温簇级电压数据恢复成功')
+              TimerId.value = setInterval(callback, 1000 * 60 * 3)
+            }
           }
-
-        }
-      }, 1000 * 60 * 3)
+        },
+        1000 * 60 * 3
+      )
     } else {
       UpdateChart().then()
     }
   }
 }
 </script>
-
 
 <template>
   <div class="clustercontainer">
