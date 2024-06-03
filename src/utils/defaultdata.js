@@ -238,6 +238,93 @@ const UpdateSystemChart = (data) => {
 const toFixed = (num) => {
   return parseFloat(num).toFixed(1)
 }
+
+// 电池包选择数据
+let PackData = []
+let innerindex = 0
+for (let i = 0; i < 10; i++) {
+  for (let j = 0; j < 10; j++) {
+    PackData[innerindex] = [i, j]
+    innerindex++
+  }
+}
+
+for (let i = 0; i < 100; i = i + 10) {
+  const linenum = Math.floor(i / 10) + 1
+  let minCount = (linenum - 1) * 10 + 1
+  let maxCount = linenum * 10
+  if (linenum % 2 !== 0) {
+    for (let j = i; j < i + 10; j++) {
+      PackData[j][2] = minCount
+      minCount++
+    }
+  } else {
+    for (let j = i; j < i + 10; j++) {
+      PackData[j][2] = maxCount
+      maxCount--
+    }
+  }
+}
+
+PackData = PackData.map((item) => [item[1], item[0], item[2]])
+
+// 电池包数据渲染函数
+export const PackSetFunc = (data) => {
+  let ResultArr = []
+  let innerindex = 0
+  for (let i = 0; i < 10; i++) {
+    for (let j = 0; j < 10; j++) {
+      ResultArr[innerindex] = [i, j]
+      innerindex++
+    }
+  }
+
+  for (let i = 0; i < 100; i = i + 10) {
+    if (i < 50) {
+      const linenum = Math.floor(i / 10) + 1
+      let minCount = (linenum - 1) * 10
+      let maxCount = linenum * 10 - 1
+      if (linenum % 2 !== 0) {
+        for (let j = i; j < i + 10; j++) {
+          ResultArr[j][2] = data[minCount]
+          minCount++
+        }
+      } else {
+        for (let j = i; j < i + 10; j++) {
+          ResultArr[j][2] = data[maxCount]
+          maxCount--
+        }
+      }
+    } else {
+      const index = i - 50
+      const linenum = Math.floor(index / 10) + 1
+      let minCount = (linenum - 1) * 10
+      let maxCount = linenum * 10 - 1
+      if (linenum % 2 !== 0) {
+        for (let j = i; j < i + 10; j++) {
+          ResultArr[j][2] = data[minCount + 50]
+          minCount++
+        }
+      } else {
+        for (let j = i; j < i + 10; j++) {
+          ResultArr[j][2] = data[maxCount + 50]
+          maxCount--
+        }
+      }
+    }
+  }
+
+  return ResultArr.map((item) => [item[1], item[0], item[2]])
+}
+
+// 计算数据的极差
+export const Interpolation = (MaxData, MinData) => {
+  let Result = []
+  for (let i = 0; i < MaxData.length; i++) {
+    Result[i] = [+(Math.abs(MaxData[i][2] - MinData[i][2]).toFixed(2))]
+  }
+  return Result
+}
 export {
   PackOptions,
   ClusterOptions,
@@ -250,5 +337,6 @@ export {
   alarmResFormat,
   UpdateHeatMapChart,
   toFixed,
-  UpdateSystemChart
+  UpdateSystemChart,
+  PackData
 }
