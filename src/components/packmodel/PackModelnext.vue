@@ -23,7 +23,7 @@ const options = {
         ClusterName +
         CountBmuId(params.dataIndex).PackID.toString() +
         '号电池包'
-        ; ('</p>')
+      ;('</p>')
       htmlStr +=
         '<p style="color: #666;">' +
         params.marker +
@@ -141,7 +141,7 @@ onMounted(async () => {
   const SetMaxData = PackSetFunc(MaxTemp)
   const SetMinData = PackSetFunc(MinTemp)
 
-  const inte = Interpolation(SetMaxData, SetMinData);
+  const inte = Interpolation(SetMaxData, SetMinData)
 
   for (let i = 0; i < inte.length; i++) {
     SetMaxData[i][3] = inte[i]
@@ -161,48 +161,49 @@ onMounted(async () => {
 
   PackChartcontainer1.setOption(UlterOptions)
 
-  let PackTimerId = setInterval(async function callback() {
-    try {
-      const resA = await GetClusterAllTempService(3)
-      const resB = await GetClusterAllTempService(4)
-      const MaxTempA = resA.data.max_temperature
-      const MaxTempB = resB.data.max_temperature
-      const MaxTemp = MaxTempA.concat(MaxTempB)
-      const MinTempA = resA.data.min_temperature
-      const MinTempB = resB.data.min_temperature
-      const MinTemp = MinTempA.concat(MinTempB)
-      const SetMaxData = PackSetFunc(MaxTemp)
-      const SetMinData = PackSetFunc(MinTemp)
-      const inte = Interpolation(SetMaxData, SetMinData);
+  let PackTimerId = setInterval(
+    async function callback() {
+      try {
+        const resA = await GetClusterAllTempService(3)
+        const resB = await GetClusterAllTempService(4)
+        const MaxTempA = resA.data.max_temperature
+        const MaxTempB = resB.data.max_temperature
+        const MaxTemp = MaxTempA.concat(MaxTempB)
+        const MinTempA = resA.data.min_temperature
+        const MinTempB = resB.data.min_temperature
+        const MinTemp = MinTempA.concat(MinTempB)
+        const SetMaxData = PackSetFunc(MaxTemp)
+        const SetMinData = PackSetFunc(MinTemp)
+        const inte = Interpolation(SetMaxData, SetMinData)
 
-      for (let i = 0; i < inte.length; i++) {
-        SetMaxData[i][3] = inte[i]
-        SetMinData[i][3] = inte[i]
+        for (let i = 0; i < inte.length; i++) {
+          SetMaxData[i][3] = inte[i]
+          SetMinData[i][3] = inte[i]
+        }
+
+        const UlterOptions = {
+          series: [
+            {
+              data: SetMaxData
+            },
+            {
+              data: SetMinData
+            }
+          ]
+        }
+        PackChartcontainer1.setOption(UlterOptions)
+      } catch (error) {
+        const retryresult = RetryFun2(GetClusterAllTempService, 1000, 3, PackTimerId, [3, 4])
+        if (retryresult === null) {
+          ElMessage.error('获取电池簇温度数据失败,请刷新页面')
+        } else {
+          ElMessage.success('电池簇温度数据恢复成功')
+          PackTimerId = setInterval(callback, 1000 * 60 * 3)
+        }
       }
-
-      const UlterOptions = {
-        series: [
-          {
-            data: SetMaxData
-          },
-          {
-            data: SetMinData
-          }
-        ]
-      }
-      PackChartcontainer1.setOption(UlterOptions)
-    } catch (error) {
-      const retryresult = RetryFun2(GetClusterAllTempService, 1000, 3, PackTimerId, [3, 4])
-      if (retryresult === null) {
-        ElMessage.error('获取电池簇温度数据失败,请刷新页面')
-      } else {
-        ElMessage.success('电池簇温度数据恢复成功')
-        PackTimerId = setInterval(callback, 1000 * 60 * 3)
-      }
-    }
-
-  }, 1000 * 60 * 3)
-
+    },
+    1000 * 60 * 3
+  )
 })
 
 const ModeChange = (newVal) => {
@@ -235,12 +236,11 @@ const ModeChange = (newVal) => {
   </div>
 </template>
 
-
 <style scoped>
 .selectbox {
   position: absolute;
   right: 0.25rem;
-  top: 0.20rem;
+  top: 0.2rem;
   z-index: 1000;
 }
 </style>

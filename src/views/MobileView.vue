@@ -4,10 +4,20 @@
   </div>
   <div class="selconntainer">
     <el-select v-model="SelectRef.ClusterId" placeholder="选择电池簇" @change="ClusteridChange">
-      <el-option v-for="item in ClusterOptions" :key="item.value" :label="item.label" :value="item.value" />
+      <el-option
+        v-for="item in ClusterOptions"
+        :key="item.value"
+        :label="item.label"
+        :value="item.value"
+      />
     </el-select>
     <el-select v-model="SelectRef.PackId" placeholder="选择电池" @change="PackidChange">
-      <el-option v-for="item in PackOptions" :key="item.value" :label="item.label" :value="item.value" />
+      <el-option
+        v-for="item in PackOptions"
+        :key="item.value"
+        :label="item.label"
+        :value="item.value"
+      />
     </el-select>
   </div>
   <div style="height: 66px"></div>

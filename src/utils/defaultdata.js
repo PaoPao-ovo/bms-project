@@ -321,7 +321,7 @@ export const PackSetFunc = (data) => {
 export const Interpolation = (MaxData, MinData) => {
   let Result = []
   for (let i = 0; i < MaxData.length; i++) {
-    Result[i] = [+(Math.abs(MaxData[i][2] - MinData[i][2]).toFixed(2))]
+    Result[i] = [+Math.abs(MaxData[i][2] - MinData[i][2]).toFixed(2)]
   }
   return Result
 }
