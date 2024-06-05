@@ -42,22 +42,31 @@
   <div class="chartmobile">
     <WarnView />
   </div>
+  <div class="chartmobile">
+    <PackModel v-model="SelectRef" />
+  </div>
+  <div class="chartmobile">
+    <PackModelnext v-model="SelectRef" />
+  </div>
   <div style="height: 100px"></div>
 </template>
 
 <script setup>
 import TemperatureSp from '@/components/mobilecomponents/temperature/TemperatureSp.vue'
 import HeatMap from '@/components/mobilecomponents/temperature/HeatMap.vue'
-import HistoryTemperature from '@/components/mobilecomponents/temperature/HistoryTemperature.vue'
-import ClusterSp from '@/components/mobilecomponents/voltage/ClusterSp.vue'
-import VoltageLine from '@/components/mobilecomponents/voltage/VoltageLine.vue'
 import TemperatureInfo from '@/components/mobilecomponents/temperature/TemperatureInfo.vue'
+import HistoryTemperature from '@/components/mobilecomponents/temperature/HistoryTemperature.vue'
+import VoltageLine from '@/components/mobilecomponents/voltage/VoltageLine.vue'
 import WarnView from '@/components/mobilecomponents/warn/WarnView.vue'
+import ClusterSp from '@/components/mobilecomponents/voltage/ClusterSp.vue'
 import { usePackTemperatureStore } from '@/stores/modules/packtemperature'
-// import { VolGetService } from '@/api/bmu'
+import { VolGetService } from '@/api/bmu'
 import { ref, watch, computed } from 'vue'
 import { PackOptions, ClusterOptions } from '@/utils/defaultdata'
-
+import { RetryFun } from '@/utils/retry'
+import { ElMessage } from 'element-plus'
+import PackModel from '@/components/mobilecomponents/packmodel/PackModel.vue'
+import PackModelnext from '@/components/mobilecomponents/packmodel/PackModelnext.vue'
 // 电池包pinia
 const packtempStore = usePackTemperatureStore()
 
@@ -83,8 +92,10 @@ const PackidChange = (SelVal) => {
 // 监听电池簇和电池包的选择值,当发生变化时修改bmuid的值
 watch(
   SelectRef,
-  (newVal) => {
+  async (newVal) => {
     packtempStore.setBmuId(newVal.ClusterId, newVal.PackId)
+    await packtempStore.setTemperatureData()
+    await TitleFn()
   },
   { deep: true }
 )
@@ -101,7 +112,62 @@ const TitleContent = computed(() => {
     return `D簇${SelectRef.value.PackId}号电池包`
   }
 })
+
+await packtempStore.setTemperatureData()
+
+// 温度数据定时更新
+let TemperaID = setInterval(
+  async function callback() {
+    const res = await packtempStore.setTemperatureData()
+    if (res === null) {
+      const retryresult = await RetryFun(packtempStore.setTemperatureData, 1000, 3, TemperaID)
+      if (retryresult === null) {
+        ElMessage('请求失败,请刷新')
+      } else {
+        ElMessage.success('恢复成功')
+        TemperaID = setInterval(callback, 1000 * 60 * 3)
+      }
+    }
+  },
+  1000 * 60 * 3
+)
+
+const TitleDataRef = ref({
+  Voltage: null,
+  Temperature: null
+})
+
+const TitleFn = async () => {
+  try {
+    TitleDataRef.value.Temperature = packtempStore.TemperatureTable[2].value1
+    const res = await VolGetService(packtempStore.bmuId)
+    TitleDataRef.value.Voltage = res.data.voltage / 1000 + ' V'
+    return true
+  } catch (error) {
+    return null
+  }
+}
+
+await TitleFn()
+
+// 标题数据定时更新
+let TitleId = setInterval(
+  async function callback() {
+    const res = await TitleFn()
+    if (res === null) {
+      const retryresult = await RetryFun(TitleFn, 1000, 3, TitleId)
+      if (retryresult === null) {
+        ElMessage('请求失败,请刷新')
+      } else {
+        ElMessage.success('恢复成功')
+        TitleId = setInterval(callback, 1000 * 60 * 3)
+      }
+    }
+  },
+  1000 * 60 * 3
+)
 </script>
+
 <style>
 body {
   /* background-color: rgb(207, 27, 27); */

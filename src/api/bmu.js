@@ -91,3 +91,11 @@ export const GetClusterHistoryVolService = (id, datatime) =>
       rows: 500
     }
   })
+
+// 获取指定电池簇的最高和最小温度
+export const GetClusterAllTempService = (id) =>
+  request.get('/get_bcmu_temperature', {
+    params: {
+      bcmu_id: id
+    }
+  })

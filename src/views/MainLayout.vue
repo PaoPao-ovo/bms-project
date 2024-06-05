@@ -8,13 +8,15 @@ import HistoryTemperature from '@/components/temperature/HistoryTemperature.vue'
 import VoltageLine from '@/components/voltage/VoltageLine.vue'
 import WarnView from '@/components/warn/WarnView.vue'
 import ClusterSp from '@/components/voltage/ClusterSp.vue'
-// import PackModel from '@/components/packmodel/PackModel.vue'
+import PackModel from '@/components/packmodel/PackModel.vue'
+import PackModelnext from '@/components/packmodel/PackModelnext.vue'
 import { usePackTemperatureStore } from '@/stores/modules/packtemperature'
 import { VolGetService } from '@/api/bmu'
 import { ref, watch, computed } from 'vue'
 import { PackOptions, ClusterOptions } from '@/utils/defaultdata'
 import { RetryFun } from '@/utils/retry'
 import { ElMessage } from 'element-plus'
+
 // 电池包pinia
 const packtempStore = usePackTemperatureStore()
 
@@ -40,8 +42,10 @@ const PackidChange = (SelVal) => {
 // 监听电池簇和电池包的选择值,当发生变化时修改bmuid的值
 watch(
   SelectRef,
-  (newVal) => {
+  async (newVal) => {
     packtempStore.setBmuId(newVal.ClusterId, newVal.PackId)
+    await packtempStore.setTemperatureData()
+    await TitleFn()
   },
   { deep: true }
 )
@@ -168,12 +172,12 @@ let TitleId = setInterval(
         <div class="panel">
           <ClusterSp />
         </div>
-        <!-- <div class="panel">
-          <PackModel />
+        <div class="panel">
+          <PackModel v-model="SelectRef" />
         </div>
         <div class="panel">
-          <PackModel />
-        </div> -->
+          <PackModelnext v-model="SelectRef" />
+        </div>
       </div>
       <div class="column">
         <div class="panel">

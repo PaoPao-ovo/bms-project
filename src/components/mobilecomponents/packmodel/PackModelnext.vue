@@ -17,7 +17,7 @@ const options = {
   tooltip: {
     position: 'top',
     formatter: function (params) {
-      const ClusterName = CountBmuId(params.dataIndex).ClusterId === 1 ? 'A簇' : 'B簇'
+      const ClusterName = CountBmuId(params.dataIndex + 100).ClusterId === 3 ? 'C簇' : 'D簇'
       let htmlStr =
         '<div style="height: auto;max-height: 200px;overflow-y: auto;"><p>' +
         ClusterName +
@@ -115,19 +115,19 @@ const options = {
 }
 let Chart = null
 onMounted(async () => {
-  const PackChartcontainer1 = echarts.init(document.getElementById('PackChartcontainer1'))
+  const PackChartcontainer1 = echarts.init(document.getElementById('PackChartcontainer4'))
   Chart = PackChartcontainer1
   PackChartcontainer1.setOption(options)
   window.addEventListener('resize', function () {
     PackChartcontainer1.resize()
   })
   PackChartcontainer1.on('click', function (params) {
-    IdRef.value.ClusterId = CountBmuId(params.dataIndex).ClusterId.toString()
-    IdRef.value.PackId = CountBmuId(params.dataIndex).PackID.toString()
+    IdRef.value.ClusterId = CountBmuId(+params.dataIndex + 100).ClusterId.toString()
+    IdRef.value.PackId = CountBmuId(+params.dataIndex + 100).PackID.toString()
   })
 
-  const resA = await GetClusterAllTempService(1)
-  const resB = await GetClusterAllTempService(2)
+  const resA = await GetClusterAllTempService(3)
+  const resB = await GetClusterAllTempService(4)
 
   const MaxTempA = resA.data.max_temperature
   const MaxTempB = resB.data.max_temperature
@@ -164,8 +164,8 @@ onMounted(async () => {
   let PackTimerId = setInterval(
     async function callback() {
       try {
-        const resA = await GetClusterAllTempService(1)
-        const resB = await GetClusterAllTempService(2)
+        const resA = await GetClusterAllTempService(3)
+        const resB = await GetClusterAllTempService(4)
         const MaxTempA = resA.data.max_temperature
         const MaxTempB = resB.data.max_temperature
         const MaxTemp = MaxTempA.concat(MaxTempB)
@@ -193,7 +193,7 @@ onMounted(async () => {
         }
         PackChartcontainer1.setOption(UlterOptions)
       } catch (error) {
-        const retryresult = RetryFun2(GetClusterAllTempService, 1000, 3, PackTimerId, [1, 2])
+        const retryresult = RetryFun2(GetClusterAllTempService, 1000, 3, PackTimerId, [3, 4])
         if (retryresult === null) {
           ElMessage.error('获取电池簇温度数据失败,请刷新页面')
         } else {
@@ -222,25 +222,30 @@ const ModeChange = (newVal) => {
 </script>
 
 <template>
-  <div class="selectbox">
-    <el-radio-group v-model="ModeRef" @change="ModeChange">
-      <el-radio value="height">最高温度</el-radio>
-      <el-radio value="low">最低温度</el-radio>
-    </el-radio-group>
-  </div>
-
-  <div>
-    <h2>电池仓1</h2>
-    <div class="chart" id="PackChartcontainer1"></div>
-    <div class="panel-footer"></div>
+  <div class="packcontainersecond">
+    <div class="selectbox">
+      <el-radio-group v-model="ModeRef" @change="ModeChange">
+        <el-radio value="height">最高温度</el-radio>
+        <el-radio value="low">最低温度</el-radio>
+      </el-radio-group>
+    </div>
+    <div>
+      <h2>电池仓2</h2>
+      <div class="chart" id="PackChartcontainer4"></div>
+      <div class="panel-footer"></div>
+    </div>
   </div>
 </template>
 
 <style scoped>
+.packcontainersecond {
+  position: relative;
+}
+
 .selectbox {
   position: absolute;
   right: 0.25rem;
-  top: 0.2rem;
+  bottom: 12rem;
   z-index: 1000;
 }
 </style>

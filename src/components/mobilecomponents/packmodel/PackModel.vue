@@ -115,7 +115,7 @@ const options = {
 }
 let Chart = null
 onMounted(async () => {
-  const PackChartcontainer1 = echarts.init(document.getElementById('PackChartcontainer1'))
+  const PackChartcontainer1 = echarts.init(document.getElementById('PackChartcontainer3'))
   Chart = PackChartcontainer1
   PackChartcontainer1.setOption(options)
   window.addEventListener('resize', function () {
@@ -222,25 +222,31 @@ const ModeChange = (newVal) => {
 </script>
 
 <template>
-  <div class="selectbox">
-    <el-radio-group v-model="ModeRef" @change="ModeChange">
-      <el-radio value="height">最高温度</el-radio>
-      <el-radio value="low">最低温度</el-radio>
-    </el-radio-group>
-  </div>
+  <div class="packcontainerfirst">
+    <div class="selectbox">
+      <el-radio-group v-model="ModeRef" @change="ModeChange">
+        <el-radio value="height">最高温度</el-radio>
+        <el-radio value="low">最低温度</el-radio>
+      </el-radio-group>
+    </div>
 
-  <div>
-    <h2>电池仓1</h2>
-    <div class="chart" id="PackChartcontainer1"></div>
-    <div class="panel-footer"></div>
+    <div>
+      <h2>电池仓1</h2>
+      <div class="chart" id="PackChartcontainer3"></div>
+      <div class="panel-footer"></div>
+    </div>
   </div>
 </template>
 
 <style scoped>
+.packcontainerfirst {
+  position: relative;
+}
+
 .selectbox {
   position: absolute;
   right: 0.25rem;
-  top: 0.2rem;
+  bottom: 12rem;
   z-index: 1000;
 }
 </style>
